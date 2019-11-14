@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sensor.sellCabinet.mapper.CabinetInfoMapper">
+
+	<resultMap id="cabinetInfoMap" type="com.sensor.sellCabinet.model.entity.CabinetInfo">
+		<id property="id" column="id"/>
+		<result property="cabinetNo" column="cabinet_no"/>
+		<result property="teamCode" column="team_code"/>
+		<result property="specsNo" column="specs_no"/>
+		<result property="specs" column="specs"/>
+		<result property="isEmpty" column="is_empty"/>
+		<result property="bluetoothBusiness" column="bluetooth_business"/>
+		<result property="bluetoothUser" column="bluetooth_user"/>
+		<result property="status" column="status"/>
+		<result property="channelNum" column="channel_num"/>
+		<result property="operator" column="operator"/>
+		<result property="importPch" column="import_pch"/>
+		<result property="cabinetAlias" column="cabinet_alias"/>
+		<result property="proxyBusiness" column="proxy_business"/>
+		<result property="battery" column="battery"/>
+		<result property="battery" column="battery"/>
+		<result property="reportDate" column="report_date"/>
+		<result property="cabinetAddress" column="cabinet_address"/>
+	</resultMap>
+	<resultMap id="cabinetInfoDtoMap" type="com.sensor.sellCabinet.model.dto.CabinetInfoDto" extends="cabinetInfoMap">
+		<result property="teamName" column="team_name"/>
+	</resultMap>
+
+	<!--cabinetInfo简单分页查询-->
+	<select id="getCabinetInfoPage" resultMap="cabinetInfoDtoMap">
+		select
+		b.*,
+		(select proxy_name from sys_user where user_id = a.first_admin) as firstProxyName,
+		(select proxy_name from sys_user where user_id = a.second_admin) as secondProxyName,
+		(select proxy_name from sys_user where user_id = a.third_admin) as thirdProxyName,
+		(select proxy_name from sys_user where user_id = a.fourth_admin) as fourthProxyName,
+		(select proxy_name from sys_user where user_id = a.fifth_admin) as fifthProxyName,
+		a.team_name
+		from team a INNER JOIN cabinet_info b ON a.team_code = b.team_code
+		<where>
+			<if test="cabinetInfo.id != null">
+				AND b.id = #{cabinetInfo.id}
+			</if>
+			<if test="cabinetInfo.cabinetNo != null and cabinetInfo.cabinetNo.trim() != ''">
+				AND b.cabinet_no = #{cabinetInfo.cabinetNo}
+			</if>
+			<if test="cabinetInfo.teamCode != null and cabinetInfo.teamCode.trim() != ''">
+				AND b.team_code = #{cabinetInfo.teamCode}
+			</if>
+			<if test="cabinetInfo.teamName != null and cabinetInfo.teamName.trim() != ''">
+				AND a.team_name like '%${cabinetInfo.teamName}%'
+			</if>
+			<if test="cabinetInfo.bluetoothBusiness != null and cabinetInfo.bluetoothBusiness.trim() != ''">
+				AND b.bluetooth_business = #{cabinetInfo.bluetoothBusiness}
+			</if>
+			<if test="cabinetInfo.bluetoothUser != null and cabinetInfo.bluetoothUser.trim() != ''">
+				AND b.bluetooth_user = #{cabinetInfo.bluetoothUser}
+			</if>
+			<if test="cabinetInfo.status != null and cabinetInfo.status.trim() != ''">
+				AND b.status = #{cabinetInfo.status}
+			</if>
+			<if test="cabinetInfo.channelNum != null">
+				AND b.channel_num = #{cabinetInfo.channelNum}
+			</if>
+			<if test="cabinetInfo.operator != null and cabinetInfo.operator.trim() != ''">
+				AND b.operator = #{cabinetInfo.operator}
+			</if>
+			<if test="cabinetInfo.importPch != null and cabinetInfo.importPch.trim() != ''">
+				AND b.import_pch = #{cabinetInfo.importPch}
+			</if>
+			<if test="cabinetInfo.cabinetAlias != null and cabinetInfo.cabinetAlias.trim() != ''">
+				AND b.cabinet_alias = #{cabinetInfo.cabinetAlias}
+			</if>
+			<if test="cabinetInfo.proxyBusiness != null and cabinetInfo.proxyBusiness.trim() != ''">
+				AND b.proxy_business = #{cabinetInfo.proxyBusiness}
+			</if>
+			<if test="cabinetInfo.importDate != null">
+				AND b.import_date = #{cabinetInfo.importDate}
+			</if>
+			<if test="cabinetInfo.proxyName !=null and cabinetInfo.proxyName.trim()!=''">
+				and (
+				(select proxy_name from sys_user where user_id = a.first_admin) like '%${cabinetInfo.proxyName}%'
+				or (select proxy_name from sys_user where user_id = a.second_admin) like '%${cabinetInfo.proxyName}%'
+				or (select proxy_name from sys_user where user_id = a.third_admin) like '%${cabinetInfo.proxyName}%'
+				or (select proxy_name from sys_user where user_id = a.fourth_admin) like '%${cabinetInfo.proxyName}%'
+				or (select proxy_name from sys_user where user_id = a.fifth_admin) like '%${cabinetInfo.proxyName}%'
+				)
+			</if>
+			<choose>
+				<when test="user.level == 1">
+					AND a.first_admin = #{user.userId}
+				</when>
+				<when test="user.level == 2">
+					AND a.second_admin = #{user.userId}
+				</when>
+				<when test="user.level == 3">
+					AND a.third_admin = #{user.userId}
+				</when>
+				<when test="user.level == 4">
+					AND a.fourth_admin = #{user.userId}
+				</when>
+				<when test="user.level == 5">
+					AND a.fifth_admin = #{user.userId}
+				</when>
+			</choose>
+		</where>
+		order by b.import_date desc
+	</select>
+
+	<select id="reportElectric" resultMap="cabinetInfoDtoMap">
+		select b.*,a.team_name
+		from
+		(select team_code,team_name,IFNULL(fifth_admin,IFNULL(fourth_admin,IFNULL(third_admin,IFNULL(second_admin, first_admin)))) as team_admin from team) a
+		INNER JOIN cabinet_info b ON a.team_code = b.team_code
+		<where>
+			case WHEN b.specs = '1' THEN <![CDATA[TIMESTAMPDIFF(DAY,NOW(),b.report_date) < 15]]>
+			WHEN b.specs = '2' THEN <![CDATA[TIMESTAMPDIFF(DAY,NOW(),b.report_date) < 40]]>
+			WHEN b.specs = '3' THEN <![CDATA[TIMESTAMPDIFF(DAY,NOW(),b.report_date) < 15]]>
+			END
+			<if test="user.level != 0">
+				and a.team_admin = #{user.userId}
+			</if>
+			order by b.import_date desc
+		</where>
+	</select>
+
+	<select id="getCabinet" resultMap="cabinetInfoMap">
+            select * from cabinet_info where cabinet_no = #{cabinetNo}
+	</select>
+
+	<update id="updateBattery">
+		update cabinet_info set battery = #{electric},report_date = #{reportDate} where cabinet_no = #{cabinetNo}
+	</update>
+
+	<update id="updateCabinetTeamCodeBatch" parameterType="java.util.List">
+		<foreach collection="list" item="bean" index="index" open="" close="" separator=";">
+			UPDATE cabinet_info
+			<set>
+				team_code=#{bean.teamCode},
+				cabinet_address=#{bean.cabinetAddress},
+				import_date = #{bean.importDate}
+			</set>
+			<where>
+				cabinet_no = #{bean.cabinetNo}
+			</where>
+		</foreach>
+	</update>
+
+	<update id="updetaIsEmpty">
+		update cabinet_info set is_empty = '1' where cabinet_no = #{cabinetNo}
+	</update>
+
+</mapper>

@@ -1,0 +1,45 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sensor.sellCabinet.mapper.BatteryMapper">
+
+  <resultMap id="batteryMap" type="com.sensor.sellCabinet.model.entity.Battery">
+                  <id property="id" column="id"/>
+                        <result property="electric" column="electric"/>
+                        <result property="voltage" column="voltage"/>
+                        <result property="specs" column="specs"/>
+                        <result property="days" column="days"/>
+            </resultMap>
+
+  <!--battery简单分页查询-->
+  <select id="getBatteryPage" resultMap="batteryMap">
+    SELECT
+                  id,
+	  					specs,
+                        electric,
+                        voltage,
+                        days
+              FROM battery
+    <where>
+              <if test="battery.id != null">
+          AND id = #{battery.id}
+        </if>
+              <if test="battery.specs != null and battery.specs.trim() != ''">
+          AND specs = #{battery.specs}
+        </if>
+				<if test="battery.electric != null and battery.electric.trim() != ''">
+          AND electric = #{battery.electric}
+        </if>
+              <if test="battery.voltage != null and battery.voltage.trim() != ''">
+          AND voltage = #{battery.voltage}
+        </if>
+              <if test="battery.days != null and battery.days.trim() != ''">
+          AND days = #{battery.days}
+        </if>
+          </where>
+  </select>
+
+	<select id="getBatteryByElectric" resultMap="batteryMap">
+		SELECT * from battery where electric =#{battery.electric} and specs = #{battery.specs}
+	</select>
+
+</mapper>

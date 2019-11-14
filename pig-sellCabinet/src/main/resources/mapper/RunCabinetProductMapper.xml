@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sensor.sellCabinet.mapper.RunCabinetProductMapper">
+
+  <resultMap id="runCabinetProductMap" type="com.sensor.sellCabinet.model.entity.RunCabinetProduct">
+                  <id property="id" column="id"/>
+                        <result property="cabinetNo" column="cabinet_no"/>
+                        <result property="channelNo" column="channel_no"/>
+                        <result property="productCode" column="product_code"/>
+                        <result property="currentNum" column="current_num"/>
+                        <result property="maxNum" column="max_num"/>
+                        <result property="currentPrice" column="current_price"/>
+                        <result property="updateTime" column="update_time"/>
+                        <result property="effictSdate" column="effict_sdate"/>
+                        <result property="effictEdate" column="effict_edate"/>
+                        <result property="temporaryprice" column="temporaryPrice"/>
+                        <result property="productStatus" column="product_status"/>
+            </resultMap>
+
+	<resultMap id="wechatProductInfoMap" type="com.sensor.sellCabinet.model.dto.RunCabinetProductInfo" extends="runCabinetProductMap">
+		<result property="productCode" column="product_code"/>
+		<result property="productName" column="product_name"/>
+		<result property="teamCode" column="team_code"/>
+		<result property="teamName" column="team_name"/>
+		<result property="cabinetAddress" column="cabinet_address"/>
+		<result property="productImages" column="product_images"/>
+	</resultMap>
+
+  <!--runCabinetProduct简单分页查询-->
+  <select id="getRunCabinetProductPage" resultMap="wechatProductInfoMap">
+	  select a.team_code,a.team_name,c.*,b.cabinet_address,d.product_name from team a INNER JOIN cabinet_info b ON a.team_code = b.team_code left join run_cabinet_product c on b.cabinet_no = c.cabinet_no LEFT JOIN product_info d ON c.product_code = d.product_code
+    <where>
+              <if test="runCabinetProduct.id != null">
+          AND c.id = #{runCabinetProduct.id}
+        </if>
+              <if test="runCabinetProduct.cabinetNo != null and runCabinetProduct.cabinetNo.trim() != ''">
+          AND c.cabinet_no = #{runCabinetProduct.cabinetNo}
+        </if>
+              <if test="runCabinetProduct.channelNo != null">
+          AND c.channel_no = #{runCabinetProduct.channelNo}
+        </if>
+              <if test="runCabinetProduct.productCode != null and runCabinetProduct.productCode.trim() != ''">
+          AND c.product_code = #{runCabinetProduct.productCode}
+        </if>
+              <if test="runCabinetProduct.currentNum != null">
+          AND c.current_num = #{runCabinetProduct.currentNum}
+        </if>
+              <if test="runCabinetProduct.currentPrice != null">
+          AND c.current_price = #{runCabinetProduct.currentPrice}
+        </if>
+		<if test="runCabinetProduct.updateTime != null">
+          AND c.update_time = #{runCabinetProduct.updateTime}
+        </if>
+              <if test="runCabinetProduct.effictSdate != null">
+          AND c.effict_sdate = #{runCabinetProduct.effictSdate}
+        </if>
+              <if test="runCabinetProduct.effictEdate != null">
+          AND c.effict_edate = #{runCabinetProduct.effictEdate}
+        </if>
+              <if test="runCabinetProduct.temporaryprice != null">
+          AND c.temporaryPrice = #{runCabinetProduct.temporaryprice}
+        </if>  <if test="runCabinetProduct.productStatus != null and runCabinetProduct.productStatus.trim() != ''">
+          AND c.product_status = #{runCabinetProduct.productStatus}
+        </if>
+		<choose>
+			<when test="user.level == 1">
+				AND a.first_admin = #{user.userId}
+			</when>
+			<when test="user.level == 2">
+				AND a.second_admin = #{user.userId}
+			</when>
+			<when test="user.level == 3">
+				AND a.third_admin = #{user.userId}
+			</when>
+			<when test="user.level == 4">
+				AND a.fourth_admin = #{user.userId}
+			</when>
+			<when test="user.level == 5">
+				AND a.fifth_admin = #{user.userId}
+			</when>
+		</choose>
+          </where>
+  </select>
+
+	<select id="getWeRunCabinetProductDtoList" resultMap="wechatProductInfoMap">
+		select a.*,b.product_name,b.product_images from run_cabinet_product a left join product_info b on a.product_code = b.product_code where a.cabinet_no = #{cabinetNo} order by a.channel_no asc
+	</select>
+
+	<select id="getRunCabinetProductDtoList" resultMap="wechatProductInfoMap">
+		SELECT
+		c.*, d.product_name,
+		d.product_images
+		FROM
+		team a
+		INNER JOIN cabinet_info b ON a.team_code = b.team_code
+		LEFT JOIN run_cabinet_product c ON b.cabinet_no = c.cabinet_no
+		LEFT JOIN product_info d ON c.product_code = d.product_code
+		<where>
+			<choose>
+				<when test="user.level == 1">
+					AND a.first_admin = #{user.userId}
+				</when>
+				<when test="user.level == 2">
+					AND a.second_admin = #{user.userId}
+				</when>
+				<when test="user.level == 3">
+					AND a.third_admin = #{user.userId}
+				</when>
+				<when test="user.level == 4">
+					AND a.fourth_admin = #{user.userId}
+				</when>
+				<when test="user.level == 5">
+					AND a.fifth_admin = #{user.userId}
+				</when>
+			</choose>
+			<if test="cabinetNo != null and cabinetNo.trim() != ''">
+				and c.cabinet_no = #{cabinetNo}
+			</if>
+			order by c.channel_no asc
+		</where>
+	</select>
+
+	<select id="getRunCabinetProduct" resultMap="runCabinetProductMap">
+		SELECT *
+		FROM
+		run_cabinet_product
+		<where>
+			cabinet_no = #{cabinetNo} and channel_no = #{channelNo}
+		</where>
+	</select>
+
+	<update id="updateChannelStatus">
+		update run_cabinet_product set current_num = current_num-1 where cabinet_no =#{cabinetNo} and channel_no = #{channelNo}
+	</update>
+
+	<update id="updateProductPrice">
+			UPDATE run_cabinet_product
+			SET current_price = #{currentPrice}
+			WHERE product_code =#{productCode} and
+				cabinet_no IN (
+					SELECT
+						b.cabinet_no
+					FROM
+						team a
+					INNER JOIN cabinet_info b ON a.team_code = b.team_code
+					AND a.team_code = #{teamCode}
+				)
+	</update>
+
+	<update id = "updateRunCabinet">
+		update run_cabinet_product set current_num = #{currentNum},effict_sdate = #{effictSdate},effict_edate = #{effictEdate},update_time=#{updateTime} where cabinet_no = #{cabinetNo}
+	</update>
+
+	<update id="updateProduct">
+		update
+		run_cabinet_product
+		 set current_num = '1',
+		 current_price = #{runCabinetProduct.currentPrice},
+		 product_code = #{runCabinetProduct.productCode}
+		 	where
+		    cabinet_no = #{runCabinetProduct.cabinetNo}
+		  	and channel_no = #{runCabinetProduct.channelNo}
+	</update>
+</mapper>

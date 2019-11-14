@@ -1,0 +1,99 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sensor.sellCabinet.mapper.ExtractCashRecordMapper">
+
+  <resultMap id="extractCashRecordMap" type="com.sensor.sellCabinet.model.dto.ExtractCashRecordDto">
+                  <id property="id" column="id"/>
+                        <result property="orgNo" column="org_no"/>
+                        <result property="transNo" column="trans_no"/>
+                        <result property="openid" column="openid"/>
+                        <result property="extractPer" column="extract_per"/>
+                        <result property="extractPerName" column="extract_pername"/>
+                        <result property="extractDate" column="extract_date"/>
+                        <result property="extractStatus" column="extract_status"/>
+                        <result property="extractMoney" column="extract_money"/>
+                        <result property="arriveDate" column="arrive_date"/>
+                        <result property="extractRemark" column="extract_remark"/>
+                        <result property="extractFailReason" column="extract_fail_reason"/>
+                        <result property="extractBeforeBalance" column="extract_before_balance"/>
+                        <result property="extractAfterBalance" column="extract_after_balance"/>
+                        <result property="extractWay" column="extract_way"/>
+            </resultMap>
+
+  <!--extractCashRecord简单分页查询-->
+  <select id="getExtractCashRecordPage" resultMap="extractCashRecordMap">
+    			SELECT
+	  					t1.id,
+					  t1.org_no,
+					  t1.trans_no,
+					  t1.openid,
+					  t1.extract_per,
+	  					t2.real_name as extract_pername,
+					  t1.extract_date,
+					  t1.extract_status,
+					  t1.extract_money,
+					  t1.arrive_date,
+					  t1.extract_remark,
+					  t1.extract_fail_reason,
+					  t1.extract_before_balance,
+					  t1.extract_after_balance,
+					  t1.extract_way
+              FROM extract_cash_record t1 inner join sys_user t2 on t1.extract_per = t2.user_id
+    <where>
+              <if test="extractCashRecord.id != null">
+          AND t1.id = #{extractCashRecord.id}
+        </if>
+              <if test="extractCashRecord.orgNo != null and extractCashRecord.orgNo.trim() != ''">
+          AND t1.org_no = #{extractCashRecord.orgNo}
+        </if>
+              <if test="extractCashRecord.transNo != null and extractCashRecord.transNo.trim() != ''">
+          AND t1.trans_no = #{extractCashRecord.transNo}
+        </if>
+		<if	test="user.level!=0">
+				AND t1.openid = #{extractCashRecord.openid}
+		</if>
+              <if test="extractCashRecord.extractPer != null and extractCashRecord.extractPer.trim() != ''">
+          AND t1.extract_per = #{extractCashRecord.extractPer}
+        </if>
+		<if test="extractCashRecord.extractPerName != null and extractCashRecord.extractPerName.trim() != ''">
+          AND t2.real_name like '%${extractCashRecord.extractPerName}%'
+        </if>
+		<if test="extractCashRecord.sDate != null and extractCashRecord.sDate.trim()!= ''">
+			AND <![CDATA[t1.extract_date >= #{extractCashRecord.sDate}]]>
+		</if>
+		<if test="extractCashRecord.eDate != null and extractCashRecord.eDate.trim()!= ''">
+			AND <![CDATA[t1.extract_date < #{extractCashRecord.eDate}]]>
+		</if>
+              <if test="extractCashRecord.extractStatus != null and extractCashRecord.extractStatus.trim() != ''">
+          AND t1.extract_status = #{extractCashRecord.extractStatus}
+        </if>
+              <if test="extractCashRecord.extractMoney != null and extractCashRecord.extractMoney.trim() != ''">
+          AND t1.extract_money = #{extractCashRecord.extractMoney}
+        </if>
+              <if test="extractCashRecord.arriveDate != null and extractCashRecord.arriveDate.trim() != ''">
+          AND t1.arrive_date = #{extractCashRecord.arriveDate}
+        </if>
+              <if test="extractCashRecord.extractRemark != null and extractCashRecord.extractRemark.trim() != ''">
+          AND t1.extract_remark = #{extractCashRecord.extractRemark}
+        </if>
+              <if test="extractCashRecord.extractFailReason != null and extractCashRecord.extractFailReason.trim() != ''">
+          AND t1.extract_fail_reason = #{extractCashRecord.extractFailReason}
+        </if>
+              <if test="extractCashRecord.extractBeforeBalance != null and extractCashRecord.extractBeforeBalance.trim() != ''">
+          AND t1.extract_before_balance = #{extractCashRecord.extractBeforeBalance}
+        </if>
+              <if test="extractCashRecord.extractAfterBalance != null and extractCashRecord.extractAfterBalance.trim() != ''">
+          AND t1.extract_after_balance = #{extractCashRecord.extractAfterBalance}
+        </if>
+              <if test="extractCashRecord.extractWay != null and extractCashRecord.extractWay.trim() != ''">
+          AND t1.extract_way = #{extractCashRecord.extractWay}
+        </if>
+          </where>
+	  order by t1.extract_date desc
+  </select>
+
+	<select id="getExtractCashRecordByTranNo" resultMap="extractCashRecordMap">
+			select * from extract_cash_record where trans_no = #{transNo}
+	</select>
+
+</mapper>

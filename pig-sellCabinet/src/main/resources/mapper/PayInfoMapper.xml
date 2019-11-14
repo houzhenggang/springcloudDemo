@@ -1,0 +1,725 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sensor.sellCabinet.mapper.PayInfoMapper">
+
+  <resultMap id="payInfoMap" type="com.sensor.sellCabinet.model.dto.PayInfoV">
+                  <id property="id" column="id"/>
+	    				<result property="orderCode" column="order_code"/>
+                        <result property="userId" column="user_id"/>
+                        <result property="wechatNumber" column="wechat_number"/>
+	                    <result property="alipayTradeno" column="alipay_tradeno"/>
+	                    <result property="orderPrice" column="order_price"/>
+	                    <result property="teamCode" column="team_code"/>
+	                    <result property="teamName" column="team_name"/>
+	  					<result property="hotline" column="hotline"/>
+                        <result property="cabinetNo" column="cabinet_no"/>
+	  					<result property="cabinetAddress" column="cabinet_address"/>
+                        <result property="createDate" column="create_date"/>
+                        <result property="orderStatus" column="order_status"/>
+                        <result property="payAmount" column="pay_amount"/>
+                        <result property="cabinetStatus" column="cabinet_status"/>
+                        <result property="paySource" column="pay_source"/>
+                        <result property="billType" column="bill_type"/>
+                        <result property="transId" column="trans_id"/>
+                        <result property="payDate" column="pay_date"/>
+                        <result property="blueIsWrite" column="blue_is_write"/>
+                        <result property="body" column="body"/>
+                        <result property="detail" column="detail"/>
+            </resultMap>
+
+	<resultMap id="countMap" type="com.sensor.sellCabinet.model.dto.CountByTeamDto">
+		<id property="id" column="id"/>
+		<result property="userId" column="user_id"/>
+		<result property="proxyName" column="proxy_name"/>
+		<result property="firstAdmin" column="first_admin"/>
+		<result property="firstProxyName" column="firstProxyName"/>
+		<result property="secondAdmin" column="second_admin"/>
+		<result property="secondProxyName" column="secondProxyName"/>
+		<result property="thirdAdmin" column="third_admin"/>
+		<result property="thirdProxyName" column="thirdProxyName"/>
+		<result property="fourthAdmin" column="fourth_admin"/>
+		<result property="fourthProxyName" column="fourthProxyName"/>
+		<result property="fifthAdmin" column="fifth_admin"/>
+		<result property="fifthProxyName" column="fifthProxyName"/>
+		<result property="cabinetNo" column="cabinet_no"/>
+		<result property="cabinetAddress" column="cabinet_address"/>
+		<result property="days" column="days"/>
+		<result property="teamCode" column="team_code"/>
+		<result property="teamName" column="team_name"/>
+		<result property="cabinetCount" column="cabinet_count"/>
+		<result property="totolOrder" column="totol_order"/>
+		<result property="payAmountsum" column="pay_amountsum"/>
+		<result property="openPr" column="open_pr"/>
+		<result property="singlePrice" column="single_price"/>
+		<result property="cabinetDays" column="cabinet_days"/>
+		<result property="singleAmount" column="single_amount"/>
+	</resultMap>
+
+  <!--payInfo简单分页查询-->
+  <select id="getWechatPayInfoList" resultMap="payInfoMap">
+    SELECT
+				  a.id,
+				  a.order_code,
+				  a.user_id,
+				  a.wechat_number,
+	              a.alipay_tradeno,
+				  a.order_price,
+				  a.team_code,
+				  a.cabinet_no,
+	  			  b.cabinet_address,
+				  a.create_date,
+				  a.order_status,
+				  a.pay_amount,
+				  a.cabinet_status,
+				  a.pay_source,
+				  a.bill_type,
+				  a.trans_id,
+				  a.pay_date,
+				  a.blue_is_write,
+				  a.body,
+				  a.detail,
+	  			  c.hotline
+              FROM pay_info a left join cabinet_info b on a.cabinet_no = b.cabinet_no
+	  		  left join team c on a.team_code = c.team_code
+    <where>
+              <if test="payInfo.id != null">
+          AND a.id = #{payInfo.id}
+        </if>
+              <if test="payInfo.orderCode != null and payInfo.orderCode.trim() != ''">
+          AND a.order_code = #{payInfo.orderCode}
+        </if>
+			<if test="payInfo.userId != null and payInfo.userId.trim() != ''">
+		  AND a.user_id = #{payInfo.userId}
+        </if>
+              <if test="payInfo.orderPrice != null">
+          AND a.order_price = #{payInfo.orderPrice}
+        </if>
+              <if test="payInfo.teamCode != null and payInfo.teamCode.trim() != ''">
+          AND a.team_code = #{payInfo.teamCode}
+        </if>
+			<if test="payInfo.cabinetNo != null and payInfo.cabinetNo.trim() != ''">
+          AND a.cabinet_no = #{payInfo.cabinetNo}
+        </if>
+              <if test="payInfo.createDate != null">
+          AND a.create_date = #{payInfo.createDate}
+        </if>
+              <if test="payInfo.orderStatus != null and payInfo.orderStatus.trim() != ''">
+          AND a.order_status = #{payInfo.orderStatus}
+        </if>
+              <if test="payInfo.payAmount != null">
+          AND a.pay_amount = #{payInfo.payAmount}
+        </if>
+              <if test="payInfo.cabinetStatus != null and payInfo.cabinetStatus.trim() != ''">
+          AND a.cabinet_status = #{payInfo.cabinetStatus}
+        </if>
+              <if test="payInfo.paySource != null and payInfo.paySource.trim() != ''">
+          AND a.pay_source = #{payInfo.paySource}
+        </if>
+              <if test="payInfo.billType != null and payInfo.billType.trim() != ''">
+          AND a.bill_type = #{payInfo.billType}
+        </if>
+              <if test="payInfo.transId != null and payInfo.transId.trim() != ''">
+          AND a.trans_id = #{payInfo.transId}
+        </if>
+              <if test="payInfo.payDate != null">
+          AND a.pay_date = #{payInfo.payDate}
+        </if>
+              <if test="payInfo.blueIsWrite != null and payInfo.blueIsWrite.trim() != ''">
+          AND a.blue_is_write = #{payInfo.blueIsWrite}
+        </if>
+          </where>
+	  order by a.pay_date desc
+  </select>
+
+<select id="getPayInfoPage" resultMap="payInfoMap">
+	select
+	a.team_name,
+	c.cabinet_address,
+	b.*,
+	(select proxy_name from sys_user where user_id = a.first_admin) as firstProxyName,
+	(select proxy_name from sys_user where user_id = a.second_admin) as secondProxyName,
+	(select proxy_name from sys_user where user_id = a.third_admin) as thirdProxyName,
+	(select proxy_name from sys_user where user_id = a.fourth_admin) as fourthProxyName,
+	(select proxy_name from sys_user where user_id = a.fifth_admin) as fifthProxyName
+	from team a INNER JOIN pay_info b ON a.team_code = b.team_code
+	left join cabinet_info c on b.cabinet_no = c.cabinet_no
+	<where>
+		<if test="payInfo.id != null">
+			AND b.id = #{payInfo.id}
+		</if>
+		<if test="payInfo.orderCode != null and payInfo.orderCode.trim() != ''">
+			AND b.order_code = #{payInfo.orderCode}
+		</if>
+		<if test="payInfo.userId != null and payInfo.userId.trim() != ''">
+			AND b.user_id = #{payInfo.userId}
+		</if>
+		<if test="payInfo.orderPrice != null">
+			AND b.order_price = #{payInfo.orderPrice}
+		</if>
+		<if test="payInfo.teamCode != null and payInfo.teamCode.trim() != ''">
+			AND b.team_code = #{payInfo.teamCode}
+		</if>
+		<if test="payInfo.teamName != null and payInfo.teamName.trim() != ''">
+		AND a.team_name like '%${payInfo.teamName}%'
+		</if>
+		<if test="payInfo.proxyName !=null and payInfo.proxyName.trim()!=''">
+			and (
+			(select proxy_name from sys_user where user_id = a.first_admin) like '%${payInfo.proxyName}%'
+			or (select proxy_name from sys_user where user_id = a.second_admin) like '%${payInfo.proxyName}%'
+			or (select proxy_name from sys_user where user_id = a.third_admin) like '%${payInfo.proxyName}%'
+			or (select proxy_name from sys_user where user_id = a.fourth_admin) like '%${payInfo.proxyName}%'
+			or (select proxy_name from sys_user where user_id = a.fifth_admin) like '%${payInfo.proxyName}%'
+			)
+		</if>
+		<if test="payInfo.cabinetNo != null and payInfo.cabinetNo.trim() != ''">
+			AND b.cabinet_no = #{payInfo.cabinetNo}
+		</if>
+		<if test="payInfo.sDate != null and payInfo.sDate.trim()!= ''">
+			AND <![CDATA[b.create_date >= #{payInfo.sDate}]]>
+		</if>
+		<if test="payInfo.eDate != null and payInfo.eDate.trim()!= ''">
+			AND <![CDATA[b.create_date < #{payInfo.eDate}]]>
+		</if>
+		<if test="payInfo.orderStatus != null and payInfo.orderStatus.trim() != ''">
+			AND b.order_status = #{payInfo.orderStatus}
+		</if>
+		<if test="payInfo.payAmount != null">
+			AND b.pay_amount = #{payInfo.payAmount}
+		</if>
+		<if test="payInfo.cabinetStatus != null and payInfo.cabinetStatus.trim() != ''">
+			AND b.cabinet_status = #{payInfo.cabinetStatus}
+		</if>
+		<if test="payInfo.paySource != null and payInfo.paySource.trim() != ''">
+			AND b.pay_source = #{payInfo.paySource}
+		</if>
+		<if test="payInfo.billType != null and payInfo.billType.trim() != ''">
+			AND b.bill_type = #{payInfo.billType}
+		</if>
+		<if test="payInfo.transId != null and payInfo.transId.trim() != ''">
+			AND b.trans_id = #{payInfo.transId}
+		</if>
+		<if test="payInfo.payDate != null">
+			AND b.pay_date = #{payInfo.payDate}
+		</if>
+		<if test="payInfo.blueIsWrite != null and payInfo.blueIsWrite.trim() != ''">
+			AND b.blue_is_write = #{payInfo.blueIsWrite}
+		</if>
+		<choose>
+			<when test="user.level == 1">
+				AND a.first_admin = #{user.userId}
+			</when>
+			<when test="user.level == 2">
+				AND a.second_admin = #{user.userId}
+			</when>
+			<when test="user.level == 3">
+				AND a.third_admin = #{user.userId}
+			</when>
+			<when test="user.level == 4">
+				AND a.fourth_admin = #{user.userId}
+			</when>
+			<when test="user.level == 5">
+				AND a.fifth_admin = #{user.userId}
+			</when>
+		</choose>
+	</where>
+	order by b.pay_date desc
+
+</select>
+	<select id="getPayInfo" resultMap="payInfoMap">
+		select * from pay_info where order_code = #{orderCode}
+	</select>
+
+	<update id="updatePayStatus">
+		update pay_info set pay_amount = #{totalFee},order_status = '1' where order_code = #{orderCode}
+	</update>
+
+	<select id="getSaleCount" resultType="java.math.BigDecimal">
+		SELECT
+		TRUNCATE (SUM(a.pay_amount), 2)
+		FROM
+		pay_info a LEFT JOIN team b on a.team_code = b.team_code
+		WHERE
+		1=1
+		AND a.order_status = '1'
+		<if test="user.level!=0">
+			<choose>
+				<when test="user.level == 1">
+					AND first_admin = #{user.userId}
+				</when>
+				<when test="user.level == 2">
+					AND second_admin = #{user.userId}
+				</when>
+				<when test="user.level == 3">
+					AND third_admin = #{user.userId}
+				</when>
+				<when test="user.level == 4">
+					AND fourth_admin = #{user.userId}
+				</when>
+				<when test="user.level == 5">
+					AND fifth_admin = #{user.userId}
+				</when>
+			</choose>
+		</if>
+		<if test="payInfoParam.sDate!= null and payInfoParam.sDate.trim()!= ''">
+			AND <![CDATA[pay_date >= #{payInfoParam.sDate}]]>
+		</if>
+		<if test="payInfoParam.eDate!= null and payInfoParam.eDate.trim()!= ''">
+			AND <![CDATA[pay_date < #{payInfoParam.eDate}]]>
+		</if>
+	</select>
+
+	<select id="getBillCount" resultType="java.lang.Integer">
+		SELECT
+		COUNT(a.order_code)
+		FROM
+		pay_info a LEFT JOIN team b on a.team_code = b.team_code
+		WHERE
+		1=1
+		AND a.order_status = '1'
+		<if test="user.level!=0">
+			<choose>
+				<when test="user.level == 1">
+					AND first_admin = #{user.userId}
+				</when>
+				<when test="user.level == 2">
+					AND second_admin = #{user.userId}
+				</when>
+				<when test="user.level == 3">
+					AND third_admin = #{user.userId}
+				</when>
+				<when test="user.level == 4">
+					AND fourth_admin = #{user.userId}
+				</when>
+				<when test="user.level == 5">
+					AND fifth_admin = #{user.userId}
+				</when>
+			</choose>
+		</if>
+		<if test="payInfoParam.sDate!= null and payInfoParam.sDate.trim()!= ''">
+			AND <![CDATA[pay_date >= #{payInfoParam.sDate}]]>
+		</if>
+		<if test="payInfoParam.eDate!= null and payInfoParam.eDate.trim()!= ''">
+			AND <![CDATA[pay_date < #{payInfoParam.eDate}]]>
+		</if>
+	</select>
+
+	<select id="getExtracted" resultType="java.lang.Integer">
+		select SUM(e.extract_money)
+		from
+		extract_cash_record e LEFT JOIN sys_user s on e.openid = s.wx_openid
+		<where>
+			extract_status = '1'
+			and s.user_id = #{user.userId}
+		</where>
+		GROUP BY s.user_id
+	</select>
+
+	<select id="getNoExtracted" resultType="java.lang.Integer">
+		select SUM(e.extract_money)
+		from
+		extract_cash_record e LEFT JOIN sys_user s on e.openid = s.wx_openid
+		<where>
+			extract_status = '1'
+			and s.user_id = #{user.userId}
+		</where>
+		GROUP BY s.user_id
+	</select>
+
+	<select id="getCountByTeam" resultMap="countMap">
+		SELECT
+		t1.first_admin,
+		t1.firstProxyName,
+		t1.second_admin,
+		t1.secondProxyName,
+		t1.third_admin,
+		t1.thirdProxyName,
+		t1.fourth_admin,
+		t1.fourthProxyName,
+		t1.fifth_admin,
+		t1.fifthProxyName,
+		t1.days,
+		t1.team_code,
+		t1.team_name,
+		t2.cabinet_count,
+		t3.totol_order,
+		t3.pay_amountsum,
+		t3.totol_order/t5.cabinet_days as open_pr,
+		t3.pay_amountsum/t3.totol_order as single_price,
+		t5.cabinet_days,
+		t3.pay_amountsum/t5.cabinet_days as single_amount
+		from (SELECT DATEDIFF(NOW(),create_date) days,team_code,team_name,
+		first_admin,
+		(select proxy_name from sys_user where user_id = first_admin) as firstProxyName,
+		second_admin,
+		(select proxy_name from sys_user where user_id = second_admin) as secondProxyName,
+		third_admin,
+		(select proxy_name from sys_user where user_id = third_admin) as thirdProxyName,
+		fourth_admin,
+		(select proxy_name from sys_user where user_id = fourth_admin) as fourthProxyName,
+		fifth_admin,
+		(select proxy_name from sys_user where user_id = fifth_admin) as fifthProxyName
+		 from team
+		<where>
+				<choose>
+					<when test="user.level == 1">
+						AND first_admin = #{user.userId}
+					</when>
+					<when test="user.level == 2">
+						AND second_admin = #{user.userId}
+					</when>
+					<when test="user.level == 3">
+						AND third_admin = #{user.userId}
+					</when>
+					<when test="user.level == 4">
+						AND fourth_admin = #{user.userId}
+					</when>
+					<when test="user.level == 5">
+						AND fifth_admin = #{user.userId}
+					</when>
+				</choose>
+		</where>
+		 GROUP BY team_code) t1
+		LEFT JOIN (SELECT COUNT(cabinet_no) as cabinet_count,team_code from cabinet_info GROUP BY team_code) t2 on t1.team_code = t2.team_code
+		LEFT JOIN (select COUNT(order_code) totol_order,SUM(pay_amount) pay_amountsum,team_code from pay_info where order_status = '1' GROUP BY team_code) t3 on t1.team_code = t3.team_code
+		LEFT JOIN (select SUM(t4.cabinet_sum*t4.run_days) cabinet_days,team_code from
+		(select COUNT(cabinet_no) as cabinet_sum,DATEDIFF(NOW(),import_date) run_days,team_code from cabinet_info GROUP BY team_code,run_days)
+		t4 GROUP BY team_code) t5 on t1.team_code = t5.team_code
+		<where>
+			<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+				and t1.team_name like '%${countByTeam.teamName}%'
+			</if>
+			<if test="countByTeam.proxyName !=null and countByTeam.proxyName.trim()!=''">
+				and t1.firstProxyName like '%${countByTeam.proxyName}%'
+				or t1.secondProxyName like '%${countByTeam.proxyName}%'
+				or t1.thirdProxyName like '%${countByTeam.proxyName}%'
+				or t1.fourthProxyName like '%${countByTeam.proxyName}%'
+				or t1.fifthProxyName like '%${countByTeam.proxyName}%'
+			</if>
+			<if test="countByTeam.sopenPr !=null and countByTeam.sopenPr.trim()!=''">
+				and <![CDATA[t3.totol_order/t5.cabinet_days >= #{countByTeam.sopenPr}]]>
+			</if>
+			<if test="countByTeam.eopenPr !=null and countByTeam.eopenPr.trim()!=''">
+				and <![CDATA[t3.totol_order/t5.cabinet_days < #{countByTeam.eopenPr}]]>
+			</if>
+			<if test="countByTeam.ssingleAmount !=null and countByTeam.ssingleAmount.trim()!=''">
+				and <![CDATA[t3.pay_amountsum/t5.cabinet_days >= #{countByTeam.ssingleAmount}]]>
+			</if>
+			<if test="countByTeam.esingleAmount !=null and countByTeam.esingleAmount.trim()!=''">
+				and <![CDATA[t3.pay_amountsum/t5.cabinet_days < #{countByTeam.esingleAmount}]]>
+			</if>
+		</where>
+		order by single_amount DESC
+	</select>
+
+	<select id="getCountByCabinet" resultMap="countMap">
+		select
+		a.first_admin,
+		(select proxy_name from sys_user where user_id = a.first_admin) as firstProxyName,
+		a.second_admin,
+		(select proxy_name from sys_user where user_id = a.second_admin) as secondProxyName,
+		a.third_admin,
+		(select proxy_name from sys_user where user_id = a.third_admin) as thirdProxyName,
+		a.fourth_admin,
+		(select proxy_name from sys_user where user_id = a.fourth_admin) as fourthProxyName,
+		a.fifth_admin,
+		(select proxy_name from sys_user where user_id = a.fifth_admin) as fifthProxyName,
+-- 			DATEDIFF(NOW(),a.create_date) days,
+			DATEDIFF(NOW(),b.import_date) days,
+			a.team_code,
+			a.team_name,
+			b.cabinet_no,
+			b.cabinet_address,
+			1 as cabinet_count,
+			DATEDIFF(NOW(),b.import_date) run_days,
+			t1.totol_order,
+			t1.pay_amountsum,
+			t1.totol_order/DATEDIFF(NOW(),b.import_date) as open_pr,
+			t1.pay_amountsum/t1.totol_order as single_price,
+			DATEDIFF(NOW(),b.import_date) as cabinet_days,
+			t1.pay_amountsum/DATEDIFF(NOW(),b.import_date) as single_amount
+		 from team a INNER JOIN cabinet_info b ON a.team_code = b.team_code
+		 LEFT JOIN (select COUNT(order_code) totol_order,SUM(pay_amount) pay_amountsum,cabinet_no from pay_info where order_status = '1' GROUP BY cabinet_no) t1 on b.cabinet_no = t1.cabinet_no
+		 <where>
+			 <if test="countByTeam.cabinetNo!=null and countByTeam.cabinetNo.trim()!=''">
+				and	b.cabinet_no= #{countByTeam.cabinetNo}
+			 </if>
+			 <if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+				and a.team_name like '%${countByTeam.teamName}%'
+			 </if>
+			 <if test="countByTeam.sopenPr !=null and countByTeam.sopenPr.trim()!=''">
+				 and <![CDATA[t1.totol_order/DATEDIFF(NOW(),b.import_date) >= #{countByTeam.sopenPr}]]>
+			 </if>
+			 <if test="countByTeam.eopenPr !=null and countByTeam.eopenPr.trim()!=''">
+				 and <![CDATA[t1.totol_order/DATEDIFF(NOW(),b.import_date) < #{countByTeam.eopenPr}]]>
+			 </if>
+			 <if test="countByTeam.ssingleAmount !=null and countByTeam.ssingleAmount.trim()!=''">
+				 and <![CDATA[t1.pay_amountsum/DATEDIFF(NOW(),b.import_date) >= #{countByTeam.ssingleAmount}]]>
+			 </if>
+			 <if test="countByTeam.esingleAmount !=null and countByTeam.esingleAmount.trim()!=''">
+				 and <![CDATA[t1.pay_amountsum/DATEDIFF(NOW(),b.import_date) < #{countByTeam.esingleAmount}]]>
+			 </if>
+			 <choose>
+				 <when test="user.level == 1">
+					 AND a.first_admin = #{user.userId}
+				 </when>
+				 <when test="user.level == 2">
+					 AND a.second_admin = #{user.userId}
+				 </when>
+				 <when test="user.level == 3">
+					 AND a.third_admin = #{user.userId}
+				 </when>
+				 <when test="user.level == 4">
+					 AND a.fourth_admin = #{user.userId}
+				 </when>
+				 <when test="user.level == 5">
+					 AND a.fifth_admin = #{user.userId}
+				 </when>
+			 </choose>
+		 </where>
+		order by single_amount DESC
+		</select>
+
+	<select id="getCountByProxy" resultMap="countMap">
+		SELECT
+		sysuser.user_id,
+		sysuser.proxy_name,
+		t1.cabinet_count,
+		t2.totol_order,
+		t2.pay_amountsum,
+		t2.totol_order/t4.cabinet_days as open_pr,
+		t2.pay_amountsum/t2.totol_order as single_price,
+		t4.cabinet_days,
+		t2.pay_amountsum/t4.cabinet_days as single_amount
+		from sys_user sysuser
+		LEFT JOIN (
+		SELECT COUNT(a.cabinet_no) as cabinet_count,b.first_admin as user_id from cabinet_info a INNER JOIN team b on a.team_code = b.team_code GROUP BY b.first_admin
+		union
+		SELECT COUNT(a.cabinet_no) as cabinet_count,b.second_admin as user_id from cabinet_info a INNER JOIN team b on a.team_code = b.team_code GROUP BY b.second_admin
+		union
+		SELECT COUNT(a.cabinet_no) as cabinet_count,b.third_admin as user_id from cabinet_info a INNER JOIN team b on a.team_code = b.team_code GROUP BY b.third_admin
+		union
+		SELECT COUNT(a.cabinet_no) as cabinet_count,b.fourth_admin as user_id from cabinet_info a INNER JOIN team b on a.team_code = b.team_code GROUP BY b.fourth_admin
+		union
+		SELECT COUNT(a.cabinet_no) as cabinet_count,b.fifth_admin as user_id from cabinet_info a INNER JOIN team b on a.team_code = b.team_code GROUP BY b.fifth_admin
+		) t1 on sysuser.user_id = t1.user_id
+		LEFT JOIN (
+		select COUNT(a.order_code) totol_order,SUM(a.pay_amount) pay_amountsum,b.first_admin as user_id from pay_info a INNER JOIN team b on a.team_code = b.team_code where a.order_status = '1' GROUP BY b.first_admin
+		union
+		select COUNT(a.order_code) totol_order,SUM(a.pay_amount) pay_amountsum,b.second_admin as user_id from pay_info a INNER JOIN team b on a.team_code = b.team_code where a.order_status = '1' GROUP BY b.second_admin
+		union
+		select COUNT(a.order_code) totol_order,SUM(a.pay_amount) pay_amountsum,b.third_admin as user_id from pay_info a INNER JOIN team b on a.team_code = b.team_code where a.order_status = '1' GROUP BY b.third_admin
+		union
+		select COUNT(a.order_code) totol_order,SUM(a.pay_amount) pay_amountsum,b.fourth_admin as user_id from pay_info a INNER JOIN team b on a.team_code = b.team_code where a.order_status = '1' GROUP BY b.fourth_admin
+		union
+		select COUNT(a.order_code) totol_order,SUM(a.pay_amount) pay_amountsum,b.fifth_admin as user_id from pay_info a INNER JOIN team b on a.team_code = b.team_code where a.order_status = '1' GROUP BY b.fifth_admin
+		) t2 on sysuser.user_id = t2.user_id
+		LEFT JOIN (select SUM(t3.cabinet_sum*t3.run_days) cabinet_days,user_id from
+		(
+		select COUNT(a.cabinet_no) as cabinet_sum,DATEDIFF(NOW(),a.import_date) run_days,b.first_admin as user_id from cabinet_info a INNER JOIN team b on a.team_code = b.team_code GROUP BY b.first_admin,run_days
+		union
+		select COUNT(a.cabinet_no) as cabinet_sum,DATEDIFF(NOW(),a.import_date) run_days,b.second_admin as user_id from cabinet_info a INNER JOIN team b on a.team_code = b.team_code GROUP BY b.second_admin,run_days
+		union
+		select COUNT(a.cabinet_no) as cabinet_sum,DATEDIFF(NOW(),a.import_date) run_days,b.third_admin as user_id from cabinet_info a INNER JOIN team b on a.team_code = b.team_code GROUP BY b.third_admin,run_days
+		union
+		select COUNT(a.cabinet_no) as cabinet_sum,DATEDIFF(NOW(),a.import_date) run_days,b.fourth_admin as user_id from cabinet_info a INNER JOIN team b on a.team_code = b.team_code GROUP BY b.fourth_admin,run_days
+		union
+		select COUNT(a.cabinet_no) as cabinet_sum,DATEDIFF(NOW(),a.import_date) run_days,b.fifth_admin as user_id from cabinet_info a INNER JOIN team b on a.team_code = b.team_code GROUP BY b.fifth_admin,run_days
+		) t3 GROUP BY user_id) t4 on sysuser.user_id = t4.user_id
+		<choose>
+			<when test="user.level == 0">
+				INNER JOIN (
+				select first_admin as user_id from team
+				<where>
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select second_admin as user_id from team
+				<where>
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select third_admin as user_id from team
+				<where>
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select fourth_admin as user_id from team
+				<where>
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select fifth_admin as user_id from team
+				<where>
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				) t5 on sysuser.user_id = t5.user_id
+			</when>
+			<when test="user.level == 1">
+				INNER JOIN (
+				select first_admin as user_id from team
+				<where>
+					first_admin =  #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select second_admin as user_id from team
+				<where>
+					first_admin =  #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select third_admin as user_id from team
+				<where>
+					first_admin =  #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select fourth_admin as user_id from team
+				<where>
+					first_admin =  #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select fifth_admin as user_id from team
+				<where>
+					first_admin =  #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				) t5 on sysuser.user_id = t5.user_id
+			</when>
+			<when test="user.level == 2">
+				INNER JOIN (
+				select second_admin as user_id from team
+				<where>
+					second_admin = #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select third_admin as user_id from team
+				<where>
+					second_admin = #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select fourth_admin as user_id from team
+				<where>
+					second_admin = #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select fifth_admin as user_id from team
+				<where>
+					second_admin = #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				) t5 on sysuser.user_id = t5.user_id
+			</when>
+			<when test="user.level == 3">
+				INNER JOIN (
+				select third_admin as user_id from team
+				<where>
+					third_admin = #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select fourth_admin as user_id from team
+				<where>
+					third_admin = #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select fifth_admin as user_id from tea
+				<where>
+					third_admin = #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				) t5 on sysuser.user_id = t5.user_id
+			</when>
+			<when test="user.level == 4">
+				INNER JOIN (
+				select fourth_admin as user_id from team
+				<where>
+					fourth_admin = #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				UNION
+				select fifth_admin as user_id from team
+				<where>
+					fourth_admin = #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				) t5 on sysuser.user_id = t5.user_id
+			</when>
+			<when test="user.level == 5">
+				INNER JOIN (
+				select fifth_admin as user_id from team
+				<where>
+					fifth_admin = #{user.userId}
+					<if test="countByTeam.teamName!=null and countByTeam.teamName.trim()!=''">
+						and team_name like '%${countByTeam.teamName}%'
+					</if>
+				</where>
+				) t5 on sysuser.user_id = t5.user_id
+			</when>
+		</choose>
+		<where>
+			and sysuser.level !=0
+			<if test="countByTeam.proxyName !=null and countByTeam.proxyName.trim()!=''">
+				and sysuser.proxy_name like '%${countByTeam.proxyName}%'
+			</if>
+			<if test="countByTeam.sopenPr !=null and countByTeam.sopenPr.trim()!=''">
+				and <![CDATA[t2.totol_order/t4.cabinet_days >= #{countByTeam.sopenPr}]]>
+			</if>
+			<if test="countByTeam.eopenPr !=null and countByTeam.eopenPr.trim()!=''">
+				and <![CDATA[t2.totol_order/t4.cabinet_days < #{countByTeam.eopenPr}]]>
+			</if>
+			<if test="countByTeam.ssingleAmount !=null and countByTeam.ssingleAmount.trim()!=''">
+				and <![CDATA[t2.pay_amountsum/t4.cabinet_days >= #{countByTeam.ssingleAmount}]]>
+			</if>
+			<if test="countByTeam.esingleAmount !=null and countByTeam.esingleAmount.trim()!=''">
+				and <![CDATA[t2.pay_amountsum/t4.cabinet_days < #{countByTeam.esingleAmount}]]>
+			</if>
+			order by single_amount DESC
+		</where>
+
+	</select>
+
+</mapper>

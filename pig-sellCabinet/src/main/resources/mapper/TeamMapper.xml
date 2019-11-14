@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sensor.sellCabinet.mapper.TeamMapper">
+
+  <resultMap id="teamMap" type="com.sensor.sellCabinet.model.dto.TeamDto">
+                  <id property="id" column="id"/>
+                        <result property="teamCode" column="team_code"/>
+                        <result property="teamName" column="team_name"/>
+                        <result property="incomeStatus" column="income_status"/>
+                        <result property="teamDescribe" column="team_describe"/>
+                        <result property="deviceSize" column="device_size"/>
+                        <result property="sensorRate" column="sensor_rate"/>
+                        <result property="firstAdmin" column="first_admin"/>
+	  					<result property="firstProxyName" column="firstProxyName"/>
+                        <result property="firstRate" column="first_rate"/>
+                        <result property="secondAdmin" column="second_admin"/>
+	  					<result property="secondProxyName" column="secondProxyName"/>
+                        <result property="secondRate" column="second_rate"/>
+                        <result property="thirdAdmin" column="third_admin"/>
+	  					<result property="thirdProxyName" column="thirdProxyName"/>
+                        <result property="thirdRate" column="third_rate"/>
+                        <result property="fourthAdmin" column="fourth_admin"/>
+	  					<result property="fourthProxyName" column="fourthProxyName"/>
+                        <result property="fourthRate" column="fourth_rate"/>
+                        <result property="fifthAdmin" column="fifth_admin"/>
+	  					<result property="fifthProxyName" column="fifthProxyName"/>
+                        <result property="fifthRate" column="fifth_rate"/>
+                        <result property="hotline" column="hotline"/>
+                        <result property="createUser" column="create_user"/>
+                        <result property="createDate" column="create_date"/>
+                        <result property="updateUser" column="update_user"/>
+                        <result property="updateDate" column="update_date"/>
+            </resultMap>
+
+  <!--team简单分页查询-->
+  <select id="getTeamPage" resultMap="teamMap">
+					SELECT
+					  t1.id,
+					  t1.team_code,
+					  t1.team_name,
+	  				  t1.income_status,
+					  t1.team_describe,
+	  					t2.device_size,
+					  t1.sensor_rate,
+					  t1.first_admin,
+	  				  (select proxy_name from sys_user where user_id = t1.first_admin) as firstProxyName,
+					  t1.first_rate,
+					  t1.second_admin,
+	  				  (select proxy_name from sys_user where user_id = t1.second_admin) as secondProxyName,
+	      			  t1.second_rate,
+					  t1.third_admin,
+	  				  (select proxy_name from sys_user where user_id = t1.third_admin) as thirdProxyName,
+					  t1.third_rate,
+					  t1.fourth_admin,
+	  				  (select proxy_name from sys_user where user_id = t1.fourth_admin) as fourthProxyName,
+					  t1.fourth_rate,
+					  t1.fifth_admin,
+	  			      (select proxy_name from sys_user where user_id = t1.fifth_admin) as fifthProxyName,
+					  t1.fifth_rate,
+					  t1.hotline,
+					  t1.create_user,
+					  t1.create_date,
+					  t1.update_user,
+					  t1.update_date
+              FROM team t1  LEFT JOIN (select team_code,count(*) as device_size from cabinet_info GROUP BY team_code ) t2 on t1.team_code = t2.team_code
+    <where>
+		<choose>
+			<when test="user.level == 1">
+				AND t1.first_admin = #{user.userId}
+			</when>
+			<when test="user.level == 2">
+				AND t1.second_admin = #{user.userId}
+			</when>
+			<when test="user.level == 3">
+				AND t1.third_admin = #{user.userId}
+			</when>
+			<when test="user.level == 4">
+				AND t1.fourth_admin = #{user.userId}
+			</when>
+			<when test="user.level == 5">
+				AND t1.fifth_admin = #{user.userId}
+			</when>
+		</choose>
+              <if test="team.id != null">
+          AND t1.id = #{team.id}
+        </if>
+              <if test="team.teamCode != null and team.teamCode.trim() != ''">
+          AND t1.team_code = #{team.teamCode}
+        </if>
+              <if test="team.teamName != null and team.teamName.trim() != ''">
+          AND t1.team_name like '%${team.teamName}%'
+        </if>
+		<if test="team.proxyName !=null and team.proxyName.trim()!=''">
+			and (
+			(select proxy_name from sys_user where user_id = t1.first_admin) like '%${team.proxyName}%'
+			or (select proxy_name from sys_user where user_id = t1.second_admin) like '%${team.proxyName}%'
+			or (select proxy_name from sys_user where user_id = t1.third_admin) like '%${team.proxyName}%'
+			or (select proxy_name from sys_user where user_id = t1.fourth_admin) like '%${team.proxyName}%'
+			or (select proxy_name from sys_user where user_id = t1.fifth_admin) like '%${team.proxyName}%'
+			)
+		</if>
+              <if test="team.createDate != null">
+          AND t1.create_date = #{team.createDate}
+        </if>
+              <if test="team.updateUser != null and team.updateUser.trim() != ''">
+          AND t1.update_user = #{team.updateUser}
+        </if>
+              <if test="team.updateDate != null">
+          AND t1.update_date = #{team.updateDate}
+        </if>
+          </where>
+	  order by create_date desc
+  </select>
+
+	<select id="getTeamByCode" resultMap="teamMap">
+		select * from team where team_code = #{teamCode}
+	</select>
+
+	<update id="updateOne">
+		UPDATE
+		team
+		SET
+		<if test="team.teamCode != null and team.teamCode.trim() != ''">
+			team_code = #{team.teamCode},
+		</if>
+		<if test="team.teamName != null and team.teamName.trim() != ''">
+			team_name = #{team.teamName},
+		</if>
+		<if test="team.teamDescribe != null">
+			team_describe = #{team.teamDescribe},
+		</if>
+		<if test="team.hotline != null and team.hotline.trim() != ''">
+			hotline = #{team.hotline},
+		</if>
+		<if test="team.incomeStatus != null and team.incomeStatus.trim() != ''">
+			income_status = #{team.incomeStatus},
+		</if>
+		<if test="team.teamDescribe != null">
+			team_describe = #{team.teamDescribe},
+		</if>
+		device_size = #{team.deviceSize},
+		sensor_rate = #{team.sensorRate},
+		first_admin = #{team.firstAdmin},
+		first_rate = #{team.firstRate},
+		second_admin = #{team.secondAdmin},
+		second_rate = #{team.secondRate},
+		third_admin = #{team.thirdAdmin},
+		third_rate = #{team.thirdRate},
+		fourth_admin = #{team.fourthAdmin},
+		fourth_rate = #{team.fourthRate},
+		fifth_admin = #{team.fifthAdmin},
+		fifth_rate = #{team.fifthRate},
+		<if test="team.createUser != null">
+			create_user = #{team.createUser},
+		</if>
+		<if test="team.createDate != null">
+			create_date = #{team.createDate},
+		</if>
+		<if test="team.updateUser != null">
+			update_user = #{team.updateUser},
+		</if>
+		<if test="team.updateDate != null">
+			update_date = #{team.updateDate}
+		</if>
+		WHERE
+		id = #{team.id}
+	</update>
+
+</mapper>

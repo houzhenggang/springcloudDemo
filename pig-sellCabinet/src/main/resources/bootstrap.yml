@@ -1,0 +1,31 @@
+server:
+  port: 6000
+
+spring:
+  application:
+    name: pig-sellCabinet
+  # 配置中心
+  cloud:
+    config:
+      fail-fast: true
+      name: ${spring.application.name}
+      profile: ${spring.profiles.active}
+      discovery:
+        enabled: true
+        service-id: pig-config
+  profiles:
+    active: dev
+# 注册中心配置
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://pig:pig@pig-eureka:8761/eureka/
+logging:
+  level:
+    com.sensor.sellCabinet.mapper: DEBUG
+    com.sensor.sellCabinet.service.impl.WebSocketServiceImpl: DEBUG
+#logging:
+#  level:
+#    root: debug

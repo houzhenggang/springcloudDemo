@@ -1,0 +1,219 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sensor.sellCabinet.mapper.RefundMapper">
+
+  <resultMap id="refundMap" type="com.sensor.sellCabinet.model.dto.RefundDto">
+                  <id property="id" column="id"/>
+                        <result property="teamCode" column="team_code"/>
+	  					<result property="teamName" column="team_name"/>
+                        <result property="cabinetNo" column="cabinet_no"/>
+	  					<result property="cabinetAddress" column="cabinet_address"/>
+                        <result property="orderCode" column="order_code"/>
+						  <result property="productCode" column="product_code"/>
+						  <result property="productName" column="product_name"/>
+						  <result property="channelNo" column="channel_no"/>
+						  <result property="refuseReason" column="refuse_reason"/>
+                        <result property="wechatNumber" column="wechat_number"/>
+	                    <result property="alipayTradeno" column="alipay_tradeno"/>
+	                    <result property="refundMoney" column="refund_money"/>
+                        <result property="type" column="type"/>
+                        <result property="refundStatus" column="refund_status"/>
+                        <result property="adminId" column="admin_id"/>
+                        <result property="approval" column="approval"/>
+                        <result property="createDate" column="create_date"/>
+                        <result property="refundDate" column="refund_date"/>
+            </resultMap>
+
+  <!--refund简单分页查询-->
+  <select id="getRefundPage" resultMap="refundMap">
+	  select
+	  a.team_name,
+	  c.cabinet_address,
+	  b.*
+	  from team a INNER JOIN refund b ON a.team_code = b.team_code
+	  left join cabinet_info c on b.cabinet_no = c.cabinet_no
+    <where>
+		<choose>
+			<when test="user.level == 1">
+				AND a.first_admin = #{user.userId}
+			</when>
+			<when test="user.level == 2">
+				AND a.second_admin = #{user.userId}
+			</when>
+			<when test="user.level == 3">
+				AND a.third_admin = #{user.userId}
+			</when>
+			<when test="user.level == 4">
+				AND a.fourth_admin = #{user.userId}
+			</when>
+			<when test="user.level == 5">
+				AND a.fifth_admin = #{user.userId}
+			</when>
+			<otherwise>
+				1=1
+			</otherwise>
+		</choose>
+		<if test="refund.teamName != null and refund.teamName.trim() != ''">
+			AND a.team_name like '%${refund.teamName}%'
+		</if>
+              <if test="refund.id != null">
+          AND b.id = #{refund.id}
+        </if>
+              <if test="refund.type != null and refund.type.trim() != ''">
+          AND b.type = #{refund.type}
+        </if>
+              <if test="refund.refundStatus != null and refund.refundStatus.trim() != ''">
+          AND b.refund_status = #{refund.refundStatus}
+        </if>
+		<if test="refund.teamCode != null and refund.teamCode.trim() != ''">
+			AND b.team_code = #{refund.teamCode}
+		</if>
+              <if test="refund.orderCode != null and refund.orderCode.trim() != ''">
+          AND b.order_code = #{refund.orderCode}
+        </if>
+		<if test="refund.cabinetNo != null and refund.cabinetNo.trim() != ''">
+          AND b.cabinet_no = #{refund.cabinetNo}
+        </if>
+		<if test="refund.channelNo != null and refund.channelNo.trim() != ''">
+          AND b.channel_no = #{refund.channelNo}
+        </if>
+		<if test="refund.productCode != null and refund.productCode.trim() != ''">
+			AND b.product_code = #{refund.productCode}
+		</if>
+		<if test="refund.productName != null and refund.productName.trim() != ''">
+			AND b.product_name = #{refund.productName}
+		</if>
+              <if test="refund.wechatNumber != null and refund.wechatNumber.trim() != ''">
+          AND b.wechat_number = #{refund.wechatNumber}
+        </if>
+              <if test="refund.refundMoney != null">
+          AND b.refund_money = #{refund.refundMoney}
+        </if>
+              <if test="refund.adminId != null and refund.adminId.trim() != ''">
+          AND b.admin_id = #{refund.adminId}
+        </if>
+              <if test="refund.approval != null and refund.approval.trim() != ''">
+          AND b.approval = #{refund.approval}
+        </if>
+              <if test="refund.sDate != null and refund.sDate.trim()!= ''">
+          AND <![CDATA[b.create_date >= #{refund.sDate}]]>
+        </if>
+			  <if test="refund.eDate != null and refund.eDate.trim()!= ''">
+          AND <![CDATA[b.create_date < #{refund.eDate}]]>
+        </if>
+              <if test="refund.refundDate != null">
+          AND b.refund_date = #{refund.refundDate}
+        </if>
+          </where>
+	  order by b.create_date desc
+  </select>
+
+	<select id="getRefundList" resultMap="refundMap">
+		select
+		a.team_name,
+		c.cabinet_address,
+		b.*
+		from team a INNER JOIN refund b ON a.team_code = b.team_code
+		left join cabinet_info c on b.cabinet_no = c.cabinet_no
+		<where>
+			<choose>
+				<when test="user.level == 1">
+					AND a.first_admin = #{user.userId}
+				</when>
+				<when test="user.level == 2">
+					AND a.second_admin = #{user.userId}
+				</when>
+				<when test="user.level == 3">
+					AND a.third_admin = #{user.userId}
+				</when>
+				<when test="user.level == 4">
+					AND a.fourth_admin = #{user.userId}
+				</when>
+				<when test="user.level == 5">
+					AND a.fifth_admin = #{user.userId}
+				</when>
+				<otherwise>
+					1=1
+				</otherwise>
+			</choose>
+			<if test="refund.refundStatus != null and refund.refundStatus.trim() != ''">
+				AND b.refund_status = #{refund.refundStatus}
+			</if>
+			<if test="refund.sDate != null and refund.sDate.trim()!= ''">
+				AND <![CDATA[b.create_date > #{refund.sDate}]]>
+			</if>
+		</where>
+		order by b.create_date desc
+	</select>
+
+	<select id="getRefund" resultMap="refundMap">
+		SELECT
+		id,
+		type,
+		cabinet_no,
+		channel_no,
+		refund_status,
+		product_code,
+		product_name,
+		order_code,
+		wechat_number,
+		alipay_tradeno,
+		refund_money,
+		admin_id,
+		approval,
+		create_date,
+		refund_date
+		FROM refund
+		<where>
+			<if test="refund.id != null">
+				AND id = #{refund.id}
+			</if>
+			<if test="refund.type != null and refund.type.trim() != ''">
+				AND type = #{refund.type}
+			</if>
+			<if test="refund.refundStatus != null and refund.refundStatus.trim() != ''">
+				AND refund_status = #{refund.refundStatus}
+			</if>
+			<if test="refund.orderCode != null and refund.orderCode.trim() != ''">
+				AND order_code = #{refund.orderCode}
+			</if>
+			<if test="refund.cabinetNo != null and refund.cabinetNo.trim() != ''">
+				AND cabinet_no = #{refund.cabinetNo}
+			</if>
+			<if test="refund.channelNo != null and refund.channelNo.trim() != ''">
+				AND channel_no = #{refund.channelNo}
+			</if>
+			<if test="refund.productCode != null and refund.productCode.trim() != ''">
+				AND product_code = #{refund.productCode}
+			</if>
+			<if test="refund.productName != null and refund.productName.trim() != ''">
+				AND product_name = #{refund.productName}
+			</if>
+			<if test="refund.wechatNumber != null and refund.wechatNumber.trim() != ''">
+				AND wechat_number = #{refund.wechatNumber}
+			</if>
+			<if test="refund.refundMoney != null">
+				AND refund_money = #{refund.refundMoney}
+			</if>
+			<if test="refund.adminId != null and refund.adminId.trim() != ''">
+				AND admin_id = #{refund.adminId}
+			</if>
+			<if test="refund.approval != null and refund.approval.trim() != ''">
+				AND approval = #{refund.approval}
+			</if>
+			<if test="refund.createDate != null">
+				AND create_date = #{refund.createDate}
+			</if>
+			<if test="refund.refundDate != null">
+				AND refund_date = #{refund.refundDate}
+			</if>
+		</where>
+		order by create_date desc
+	</select>
+
+	<update id="updateRefundStatus">
+		update refund set refund_status = #{refundStatus}, refund_date = now() where id = #{refundId}
+	</update>
+
+
+</mapper>

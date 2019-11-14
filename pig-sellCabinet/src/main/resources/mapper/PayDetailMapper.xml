@@ -1,0 +1,258 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sensor.sellCabinet.mapper.PayDetailMapper">
+
+  <resultMap id="payDetailMap" type="com.sensor.sellCabinet.model.dto.PayDetailDto">
+                  <id property="id" column="id"/>
+                        <result property="orderCode" column="order_code"/>
+                        <result property="cabinetNo" column="cabinet_no"/>
+                        <result property="channelNo" column="channel_no"/>
+                        <result property="productCode" column="product_code"/>
+                        <result property="productName" column="product_name"/>
+						  <result property="teamCode" column="team_code"/>
+						  <result property="teamName" column="team_name"/>
+                        <result property="rateType" column="rate_type"/>
+                        <result property="productPrice" column="product_price"/>
+                        <result property="payAmount" column="pay_amount"/>
+                        <result property="createDate" column="create_date"/>
+                        <result property="payStatus" column="pay_status"/>
+                        <result property="openStatus" column="open_status"/>
+            </resultMap>
+
+  <!--payDetail简单分页查询-->
+  <select id="getPayDetailPage" resultMap="payDetailMap">
+	  SELECT
+	  a.team_name,
+	  a.team_code,
+	  d.cabinet_address,
+	  c.*,
+	  (select proxy_name from sys_user where user_id = a.first_admin) as firstProxyName,
+	  (select proxy_name from sys_user where user_id = a.second_admin) as secondProxyName,
+	  (select proxy_name from sys_user where user_id = a.third_admin) as thirdProxyName,
+	  (select proxy_name from sys_user where user_id = a.fourth_admin) as fourthProxyName,
+	  (select proxy_name from sys_user where user_id = a.fifth_admin) as fifthProxyName
+	  FROM
+	  team a
+	  INNER JOIN pay_info b ON a.team_code = b.team_code
+	  LEFT JOIN pay_detail c on c.order_code = b.order_code
+	  left join cabinet_info d on c.cabinet_no = d.cabinet_no
+    <where>
+		<if test="payDetail.teamName != null and payDetail.teamName.trim() != ''">
+			AND a.team_name like '%${payDetail.teamName}%'
+		</if>
+              <if test="payDetail.id != null">
+          AND c.id = #{payDetail.id}
+        </if>
+              <if test="payDetail.orderCode != null and payDetail.orderCode.trim() != ''">
+          AND c.order_code = #{payDetail.orderCode}
+        </if>
+              <if test="payDetail.cabinetNo != null and payDetail.cabinetNo.trim() != ''">
+          AND c.cabinet_no = #{payDetail.cabinetNo}
+        </if>
+              <if test="payDetail.channelNo != null">
+          AND c.channel_no = #{payDetail.channelNo}
+        </if>
+              <if test="payDetail.productCode != null and payDetail.productCode.trim() != ''">
+          AND c.product_code = #{payDetail.productCode}
+        </if>
+			  <if test="payDetail.productName != null and payDetail.productName.trim() != ''">
+          AND c.product_name = #{payDetail.productName}
+        </if>
+              <if test="payDetail.rateType != null and payDetail.rateType.trim() != ''">
+          AND c.rate_type = #{payDetail.rateType}
+        </if>
+              <if test="payDetail.productPrice != null">
+          AND c.product_price = #{payDetail.productPrice}
+        </if>
+              <if test="payDetail.payAmount != null">
+          AND c.pay_amount = #{payDetail.payAmount}
+        </if>
+              <if test="payDetail.sDate != null and payDetail.sDate.trim()!= ''">
+          AND <![CDATA[c.create_date >= #{payDetail.sDate}]]>
+        </if>
+		<if test="payDetail.eDate != null and payDetail.eDate.trim()!= ''">
+          AND <![CDATA[c.create_date < #{payDetail.eDate}]]>
+        </if>
+              <if test="payDetail.payStatus != null and payDetail.payStatus.trim() != ''">
+          AND c.pay_status = #{payDetail.payStatus}
+        </if>
+		      <if test="payDetail.openStatus != null and payDetail.openStatus.trim() != ''">
+          AND c.open_status = #{payDetail.openStatus}
+        </if>
+		<if test="payDetail.proxyName !=null and payDetail.proxyName.trim()!=''">
+			and (
+			(select proxy_name from sys_user where user_id = a.first_admin) like '%${payDetail.proxyName}%'
+			or (select proxy_name from sys_user where user_id = a.second_admin) like '%${payDetail.proxyName}%'
+			or (select proxy_name from sys_user where user_id = a.third_admin) like '%${payDetail.proxyName}%'
+			or (select proxy_name from sys_user where user_id = a.fourth_admin) like '%${payDetail.proxyName}%'
+			or (select proxy_name from sys_user where user_id = a.fifth_admin) like '%${payDetail.proxyName}%'
+			)
+		</if>
+		<choose>
+			<when test="user.level == 1">
+				AND a.first_admin = #{user.userId}
+			</when>
+			<when test="user.level == 2">
+				AND a.second_admin = #{user.userId}
+			</when>
+			<when test="user.level == 3">
+				AND a.third_admin = #{user.userId}
+			</when>
+			<when test="user.level == 4">
+				AND a.fourth_admin = #{user.userId}
+			</when>
+			<when test="user.level == 5">
+				AND a.fifth_admin = #{user.userId}
+			</when>
+		</choose>
+	</where>
+	  order by create_date desc
+  </select>
+
+	<select id="getPayDetailSum" resultType="java.math.BigDecimal">
+		SELECT
+		sum(c.pay_amount)
+		FROM
+		team a
+		INNER JOIN pay_info b ON a.team_code = b.team_code
+		LEFT JOIN pay_detail c on c.order_code = b.order_code
+		left join cabinet_info d on c.cabinet_no = d.cabinet_no
+		<where>
+			<if test="payDetail.teamName != null and payDetail.teamName.trim() != ''">
+				AND a.team_name like '%${payDetail.teamName}%'
+			</if>
+			<if test="payDetail.id != null">
+				AND c.id = #{payDetail.id}
+			</if>
+			<if test="payDetail.orderCode != null and payDetail.orderCode.trim() != ''">
+				AND c.order_code = #{payDetail.orderCode}
+			</if>
+			<if test="payDetail.cabinetNo != null and payDetail.cabinetNo.trim() != ''">
+				AND c.cabinet_no = #{payDetail.cabinetNo}
+			</if>
+			<if test="payDetail.channelNo != null">
+				AND c.channel_no = #{payDetail.channelNo}
+			</if>
+			<if test="payDetail.productCode != null and payDetail.productCode.trim() != ''">
+				AND c.product_code = #{payDetail.productCode}
+			</if>
+			<if test="payDetail.productName != null and payDetail.productName.trim() != ''">
+				AND c.product_name = #{payDetail.productName}
+			</if>
+			<if test="payDetail.rateType != null and payDetail.rateType.trim() != ''">
+				AND c.rate_type = #{payDetail.rateType}
+			</if>
+			<if test="payDetail.productPrice != null">
+				AND c.product_price = #{payDetail.productPrice}
+			</if>
+			<if test="payDetail.payAmount != null">
+				AND c.pay_amount = #{payDetail.payAmount}
+			</if>
+			<if test="payDetail.sDate != null and payDetail.sDate.trim()!= ''">
+				AND <![CDATA[c.create_date >= #{payDetail.sDate}]]>
+			</if>
+			<if test="payDetail.eDate != null and payDetail.eDate.trim()!= ''">
+				AND <![CDATA[c.create_date < #{payDetail.eDate}]]>
+			</if>
+			<if test="payDetail.payStatus != null and payDetail.payStatus.trim() != ''">
+				AND c.pay_status = #{payDetail.payStatus}
+			</if>
+			<if test="payDetail.openStatus != null and payDetail.openStatus.trim() != ''">
+				AND c.open_status = #{payDetail.openStatus}
+			</if>
+			<if test="payDetail.proxyName !=null and payDetail.proxyName.trim()!=''">
+				and (
+				(select proxy_name from sys_user where user_id = a.first_admin) like '%${payDetail.proxyName}%'
+				or (select proxy_name from sys_user where user_id = a.second_admin) like '%${payDetail.proxyName}%'
+				or (select proxy_name from sys_user where user_id = a.third_admin) like '%${payDetail.proxyName}%'
+				or (select proxy_name from sys_user where user_id = a.fourth_admin) like '%${payDetail.proxyName}%'
+				or (select proxy_name from sys_user where user_id = a.fifth_admin) like '%${payDetail.proxyName}%'
+				)
+			</if>
+			<choose>
+				<when test="user.level == 1">
+					AND a.first_admin = #{user.userId}
+				</when>
+				<when test="user.level == 2">
+					AND a.second_admin = #{user.userId}
+				</when>
+				<when test="user.level == 3">
+					AND a.third_admin = #{user.userId}
+				</when>
+				<when test="user.level == 4">
+					AND a.fourth_admin = #{user.userId}
+				</when>
+				<when test="user.level == 5">
+					AND a.fifth_admin = #{user.userId}
+				</when>
+			</choose>
+		</where>
+	</select>
+
+	<select id="getWechatPayDetailPage" resultMap="payDetailMap">
+		SELECT
+		id,
+		order_code,
+		cabinet_no,
+		channel_no,
+		product_code,
+		product_name,
+		rate_type,
+		product_price,
+		pay_amount,
+		create_date,
+		open_status,
+		pay_status
+		FROM pay_detail
+		<where>
+			<if test="payDetail.id != null">
+				AND id = #{payDetail.id}
+			</if>
+			<if test="payDetail.orderCode != null and payDetail.orderCode.trim() != ''">
+				AND order_code = #{payDetail.orderCode}
+			</if>
+			<if test="payDetail.cabinetNo != null and payDetail.cabinetNo.trim() != ''">
+				AND cabinet_no = #{payDetail.cabinetNo}
+			</if>
+			<if test="payDetail.channelNo != null">
+				AND channel_no = #{payDetail.channelNo}
+			</if>
+			<if test="payDetail.productCode != null and payDetail.productCode.trim() != ''">
+				AND product_code = #{payDetail.productCode}
+			</if>
+			<if test="payDetail.productName != null and payDetail.productName.trim() != ''">
+				AND product_name = #{payDetail.productName}
+			</if>
+			<if test="payDetail.rateType != null and payDetail.rateType.trim() != ''">
+				AND rate_type = #{payDetail.rateType}
+			</if>
+			<if test="payDetail.productPrice != null">
+				AND product_price = #{payDetail.productPrice}
+			</if>
+			<if test="payDetail.payAmount != null">
+				AND pay_amount = #{payDetail.payAmount}
+			</if>
+			<if test="payDetail.createDate != null">
+				AND create_date = #{payDetail.createDate}
+			</if>
+			<if test="payDetail.payStatus != null and payDetail.payStatus.trim() != ''">
+				AND pay_status = #{payDetail.payStatus}
+			</if>
+			<if test="payDetail.openStatus != null and payDetail.openStatus.trim() != ''">
+				AND open_status = #{payDetail.openStatus}
+			</if>
+		</where>
+	</select>
+
+	<update id="updatePayDetailStatus">
+		update pay_detail set pay_status = #{payStatus} where order_code= #{orderCode}
+		<if test="channelNo != null and channelNo.trim() != ''">
+			AND channel_no = #{channelNo}
+		</if>
+	</update>
+
+	<update id="openCabinet">
+		update pay_detail set open_status = #{openStatus} where order_code= #{orderCode} and channel_no = #{channelNo}
+	</update>
+
+</mapper>

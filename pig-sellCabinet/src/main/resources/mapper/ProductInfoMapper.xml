@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sensor.sellCabinet.mapper.ProductInfoMapper">
+
+  <resultMap id="productInfoMap" type="com.sensor.sellCabinet.model.dto.ProductInfoDto">
+                  <id property="id" column="id"/>
+                        <result property="productCode" column="product_code"/>
+                        <result property="productName" column="product_name"/>
+                        <result property="productImages" column="product_images"/>
+                        <result property="proxyBusiness" column="proxy_business"/>
+                        <result property="proxyBusinessName" column="proxyBusinessName"/>
+                        <result property="stock" column="stock"/>
+                        <result property="upperLimit" column="upper_limit"/>
+                        <result property="lowerLimit" column="lower_limit"/>
+                        <result property="operator" column="operator"/>
+                        <result property="operatorName" column="operatorName"/>
+                        <result property="sellPrice" column="sell_price"/>
+                        <result property="costPrice" column="cost_price"/>
+                        <result property="lastModifydate" column="last_modifydate"/>
+                        <result property="alarmStock" column="alarm_stock"/>
+                        <result property="productAlias" column="product_alias"/>
+                        <result property="importDate" column="import_date"/>
+                        <result property="confirmDate" column="confirm_date"/>
+                        <result property="effectStatus" column="effect_status"/>
+                        <result property="detailId" column="detail_id"/>
+            </resultMap>
+
+  <!--productInfo简单分页查询-->
+  <select id="getProductInfoPage" resultMap="productInfoMap">
+    SELECT
+						  t1.id,
+						  t1.product_code,
+						  t1.product_name,
+						  t1.product_images,
+	  					t1.proxy_business,
+	  					t2.username as proxyBusinessName,
+						  t1.stock,
+						  t1.upper_limit,
+						  t1.lower_limit,
+	  					t1.operator as operator,
+	  					t2.username as operatorName,
+						  t1.sell_price,
+						  t1.cost_price,
+						  t1.last_modifydate,
+						  t1.alarm_stock,
+						  t1.product_alias,
+						  t1.import_date,
+						  t1.confirm_date,
+						  t1.effect_status,
+						  t1.detail_id
+              FROM product_info t1 left join sys_user t2 ON t1.proxy_business = t2.user_id
+    <where>
+		<if test="user.level!=0">
+			proxy_business in(
+			select first_admin from team where 1=1
+			<choose>
+				<when test="user.level == 1">
+					AND first_admin = #{user.userId}
+				</when>
+				<when test="user.level == 2">
+					AND second_admin = #{user.userId}
+				</when>
+				<when test="user.level == 3">
+					AND third_admin = #{user.userId}
+				</when>
+				<when test="user.level == 4">
+					AND fourth_admin = #{user.userId}
+				</when>
+				<when test="user.level == 5">
+					AND fifth_admin = #{user.userId}
+				</when>
+			</choose>
+			)
+			<if test="user.level!=1">
+					AND t1.effect_status = '1'
+			</if>
+		</if>
+              <if test="productInfo.id != null">
+          AND t1.id = #{productInfo.id}
+        </if>
+              <if test="productInfo.productCode != null and productInfo.productCode.trim() != ''">
+          AND t1.product_code = #{productInfo.productCode}
+        </if>
+              <if test="productInfo.productName != null and productInfo.productName.trim() != ''">
+          AND t1.product_name like '%${productInfo.productName}%'
+        </if>
+              <if test="productInfo.productImages != null and productInfo.productImages.trim() != ''">
+          AND t1.product_images = #{productInfo.productImages}
+        </if>
+              <if test="productInfo.proxyBusiness != null and productInfo.proxyBusiness.trim() != ''">
+          AND t1.proxy_business = #{productInfo.proxyBusiness}
+        </if>
+              <if test="productInfo.stock != null and productInfo.stock.trim() != ''">
+          AND t1.stock = #{productInfo.stock}
+        </if>
+              <if test="productInfo.upperLimit != null and productInfo.upperLimit.trim() != ''">
+          AND t1.upper_limit = #{productInfo.upperLimit}
+        </if>
+              <if test="productInfo.lowerLimit != null and productInfo.lowerLimit.trim() != ''">
+          AND t1.lower_limit = #{productInfo.lowerLimit}
+        </if>
+              <if test="productInfo.operator != null and productInfo.operator.trim() != ''">
+          AND t1.operator = #{productInfo.operator}
+        </if>
+              <if test="productInfo.sellPrice != null">
+          AND t1.sell_price = #{productInfo.sellPrice}
+        </if>
+              <if test="productInfo.costPrice != null">
+          AND t1.cost_price = #{productInfo.costPrice}
+        </if>
+              <if test="productInfo.lastModifydate != null and productInfo.lastModifydate.trim() != ''">
+          AND t1.last_modifydate = #{productInfo.lastModifydate}
+        </if>
+              <if test="productInfo.alarmStock != null and productInfo.alarmStock.trim() != ''">
+          AND t1.alarm_stock = #{productInfo.alarmStock}
+        </if>
+              <if test="productInfo.productAlias != null and productInfo.productAlias.trim() != ''">
+          AND t1.product_alias = #{productInfo.productAlias}
+        </if>
+		<if test="productInfo.sDate != null and productInfo.sDate.trim()!= ''">
+			AND <![CDATA[t1.import_date >= #{productInfo.sDate}]]>
+		</if>
+		<if test="productInfo.eDate != null and productInfo.eDate.trim()!= ''">
+          AND <![CDATA[t1.import_date < #{productInfo.eDate}]]>
+        </if>
+              <if test="productInfo.confirmDate != null">
+          AND t1.confirm_date = #{productInfo.confirmDate}
+        </if>
+              <if test="productInfo.detailId != null and productInfo.detailId.trim() != ''">
+          AND t1.detail_id = #{productInfo.detailId}
+        </if>
+          </where>
+	  order by t1.last_modifydate desc
+  </select>
+
+	<select id="getProductInfoMobilePage" resultMap="productInfoMap">
+			select * from product_info a left join product_user b on a.product_code = b.product_code
+		<where>
+				b.user_id = #{user.userId}
+			<if test="productInfo.productCode != null and productInfo.productCode.trim() != ''">
+				AND a.product_code = #{productInfo.productCode}
+			</if>
+			<if test="productInfo.productName != null and productInfo.productName.trim() != ''">
+				AND a.product_name like '%${productInfo.productName}%'
+			</if>
+		</where>
+	</select>
+
+	<select id="getProductInfo" resultMap="productInfoMap">
+		 select * from product_info where product_code = #{productCode}
+	</select>
+
+	<select id="getProductByTeamCode" resultMap="productInfoMap">
+		SELECT
+		DISTINCT d.*
+		FROM
+			team a
+		INNER JOIN cabinet_info b ON a.team_code = b.team_code
+		LEFT JOIN run_cabinet_product c ON b.cabinet_no = c.cabinet_no
+		LEFT JOIN product_info d ON c.product_code = d.product_code
+		where a.team_code = #{teamCode}
+	</select>
+
+</mapper>

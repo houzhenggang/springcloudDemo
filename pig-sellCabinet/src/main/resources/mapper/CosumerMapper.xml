@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sensor.sellCabinet.mapper.CosumerMapper">
+
+  <resultMap id="cosumerMap" type="com.sensor.sellCabinet.model.entity.Cosumer">
+                  <id property="id" column="id"/>
+                        <result property="userId" column="user_id"/>
+                        <result property="userName" column="user_name"/>
+                        <result property="mobile" column="mobile"/>
+                        <result property="openId" column="open_id"/>
+                        <result property="gender" column="gender"/>
+                        <result property="city" column="city"/>
+                        <result property="province" column="province"/>
+                        <result property="country" column="country"/>
+                        <result property="balance" column="balance"/>
+                        <result property="avatarUrl" column="avatar_url"/>
+                        <result property="createDate" column="create_date"/>
+	                    <result property="alipayuserid" column="alipayuserid"/>
+  </resultMap>
+
+  <!--cosumer简单分页查询-->
+  <select id="getCosumerPage" resultMap="cosumerMap">
+    SELECT
+                  id,
+	  					user_id,
+                        user_name,
+                        mobile,
+	  					open_id,
+                        gender,
+                        city,
+                        province,
+                        country,
+                        balance,
+                        avatar_url,
+                        create_date
+              FROM cosumer
+    <where>
+              <if test="cosumer.id != null">
+          AND id = #{cosumer.id}
+        </if>
+			<if test="cosumer.userId != null and cosumer.userId.trim() != ''">
+			AND user_id = #{cosumer.userId}
+		</if>
+              <if test="cosumer.userName != null and cosumer.userName.trim() != ''">
+          AND user_name = #{cosumer.userName}
+        </if>
+              <if test="cosumer.mobile != null and cosumer.mobile.trim() != ''">
+          AND mobile = #{cosumer.mobile}
+        </if>
+              <if test="cosumer.openId != null and cosumer.openId.trim() != ''">
+          AND open_id = #{cosumer.openId}
+        </if>
+              <if test="cosumer.gender != null and cosumer.gender.trim() != ''">
+          AND gender = #{cosumer.gender}
+        </if>
+              <if test="cosumer.city != null and cosumer.city.trim() != ''">
+          AND city = #{cosumer.city}
+        </if>
+              <if test="cosumer.province != null and cosumer.province.trim() != ''">
+          AND province = #{cosumer.province}
+        </if>
+              <if test="cosumer.country != null and cosumer.country.trim() != ''">
+          AND country = #{cosumer.country}
+        </if>
+              <if test="cosumer.balance != null and cosumer.balance.trim() != ''">
+          AND balance = #{cosumer.balance}
+        </if>
+              <if test="cosumer.avatarUrl != null and cosumer.avatarUrl.trim() != ''">
+          AND avatar_url = #{cosumer.avatarUrl}
+        </if>
+              <if test="cosumer.createDate != null">
+          AND create_date = #{cosumer.createDate}
+        </if>
+          </where>
+	  order by create_date desc
+  </select>
+
+  <select id="getCosumerByOpenId" resultMap="cosumerMap">
+	  SELECT
+	  id,
+	  user_id,
+	  user_name,
+	  mobile,
+	  open_id,
+	  gender,
+	  city,
+	  province,
+	  country,
+	  balance,
+	  avatar_url,
+	  create_date
+	  FROM cosumer
+	  <where>
+	  <if test="openId != null and openId.trim() != ''">
+		  AND open_id = #{openId}
+	  </if>
+	  </where>
+
+  </select>
+
+	<select id="getCosumerByAliPayUserId" resultMap="cosumerMap">
+		SELECT
+		id,
+		user_id,
+		user_name,
+		mobile,
+		alipayuserid,
+		gender,
+		city,
+		province,
+		country,
+		balance,
+		avatar_url,
+		create_date
+		FROM cosumer
+		<where>
+			<if test="alipayuserid != null and alipayuserid.trim() != ''">
+				AND alipayuserid = #{alipayuserid}
+			</if>
+		</where>
+
+	</select>
+
+</mapper>

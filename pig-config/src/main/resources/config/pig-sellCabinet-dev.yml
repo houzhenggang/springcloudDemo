@@ -1,0 +1,50 @@
+security:
+  oauth2:
+    client:
+      client-id: ENC(imENTO7M8bLO38LFSIxnzw==)
+      client-secret: ENC(i3cDFhs26sa2Ucrfz2hnQw==)
+      scope: server
+
+# 数据源
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: '!QAZxsw2'
+#    url: jdbc:mysql://rm-wz9lfdf0651413o67no.mysql.rds.aliyuncs.com:3306/sell_Cabinet?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowMultiQueries=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://rm-wz96o8kem11d3quusfo.mysql.rds.aliyuncs.com:3306/xj?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowMultiQueries=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+
+# 直接放行URL
+ignore:
+  urls:
+    - /actuator/**
+    - /user/info/*
+    - /log/**
+    - /wechat/**
+    - /images/**
+    - /appEncrypt/**
+    - /alipay/**
+    - /webSocket/**
+
+wechat:
+  openidPath: https://api.weixin.qq.com/sns/jscode2session
+  appId: wx458e069c26b7bdb7
+  appSecret: e5e30a2c147819a7aca1f0556e60f1ee
+  mchId: 1555272431
+  key: qvn7801n780qvejnk134easv8z0dasda
+  notifyUrl: http://xj.sensorte.com:9999/sellCabinet/wechat/receiveSgin
+  unifiedOrderUrl: https://api.mch.weixin.qq.com/pay/unifiedorder
+  realmName: https://xj.sensorte.com
+
+
+alipay:
+  SELLER_ID: 2088021411128284
+  APP_ID: 2019091667425574
+  URL: https://openapi.alipay.com/gateway.do
+  APP_PRIVATE_KEY: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDMWVbqu5OgWXLI8LE9kdHX9SZ0IlVY2awFYvbGFFYDGV29nZEp0uxNRzaYk75MrZNlHYFtODUlSBgAwZXxiNPcF7aS5CIKy+a6kboMRG2ssKv2c8r6oDzQdYWKkB/8Ds2e88hA1gEcVu6Q9LHWNwgGwya3pNy/77WQZwLv07UlTk/HM3TKE3JqEPoMry4PvlQUBCrnW7b/rPIWEwM8wKKtAcfp490xWqsb3camndjtaX7XSpmdsVwKRMrXiXDhJJwXEYR54qwFhM529R/UDoVjZNeBcRVRgBaTHXXa6GVE18rvwDeb72TLJNCU0buh9Nqu/zkvG32ECkueV1SrqD9bAgMBAAECggEAN3YL4/ty7rM4Nxc0U4yPEnjDrgNffJTfXjrk1Q/R5FdvHLZ2Ho7TeYnZZIG8xVzawzfF19nIeszdTt87jelf7r003RszrhB3F63Te97akWMF2QbGUU1KFB3BV8EUHTn7TqfFcutiM8nYR9lRpt0avZMbn/4Lt8AcXAvJPUQNRwlERCH0pDXYzdzE3ESnE6raCcX1CO1bU9A9vRTzmh3xPnltZoKG+QgHlWBLY6ZxQ0OUiDwR8BbGrWTTMkyG5JpFz9XtMmBVGC3wQxLDjIuAPg+xiEmQzLFtKWyKI45jnQPM1gcsOzcFZen58zZ5/AuCSgdzQW81O2OkXqo/KuQX8QKBgQD9z5fRwDWSAEcRqRgpVtV3W7287U/DcoAxqDgEzlewDSClmj4J09MPqNaPakmXatzRVSIAyH/cg233gyyvddQoUcJ2Q3fn+8ttPCtuy2mxZMBDzZSd1Xo9aQGDw8ZD20AwYaACMaK3KITbBbtF21IjcJ969ljkuWpWbcoux7vkowKBgQDOHIk3ubUo8P+RLyLZ8W4czQAcRaFxZbd5LnJHQauNG6VDTLokFcS85EjoGzbeGt4zNA5XsJyU+8khNKyH1TKf+6imCPjioQ+oHNncGy5D9eSk29edfc3kaD77vxJ7v6OjVkwLaYh4bU87w1OVEnonH5tEN8ZX/NtJijU9poGt6QKBgQDaAcnB3HsnIR3qSXf7ah6JGz/qW1w74MnD3V3gouwmx9/W3pmTD2Mm/DrvjLgRWzS4iYtfaNiKrEl0ZDOpsme9Ch0iP+lqVZjyBtC3pfju6j9K/fY9a/RHcz5d03clKdoEtJYfzEqbUC5tgorNAgmXb1FM6PSJ4ck426ziaaU2SQKBgDHsU4g94RVzmlOOOUDU67jqJrayXvJakuA1UdTUoTrikVsFwKhw5WBjYw1lWhreIyf/2eF/k826VvNGEOwtxb9ec3EUB0TNgj9UDaj0pHYtnx4Xadhp2m8SmP7dPxreRkKP6odxHm8c+u4c16fp+9ByJWeWouI5Ctx7L34pUIvRAoGAT8OUK6UKiiSOPD8TYK+f5e+K/aLb8BEAqfO6lzy3gJW3Qo7UwxAIMgAZhNOPqZYvOvodEeK+NvEvJ+H/fVMmnbxGdm5w5mNXOCd6MHImFTIZ+lBEGMsc9pD9cndb8N+h2z4SdnKwguxeT6+fQzfXSYA/z4bxa94L8Wtnccvd7Zw=
+  ALIPAY_PUBLIC_KEY: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhZVk6hDmlm6eVTlUu41AZs9AHnl4HGITNXambUFzoydpE4ZAmO/PDEr1SKHKt8cMCyzsPeeyon/BeMgQaICn11VqBocLeqHFcJN+RlIdasqfXSylWSUPgcSddOqwBEEn2ShRy790nQtXN6+mwHGmYHEYXGs+NtfXpYUEqJ6bbTJtjRNDHAULYxkkHru0YwFrOw3mKg5xTF+vpmGxM7pokwLBE8Z3UBlcDNirGRV+IjtcjzyQBf6Q6/YCpXWxsQTF5WbsdoNg08bMhwLXtXMZa4jIGhV+Ir7xmG44JMkf5CdGi8H2f2xHfFEBTx7k0Sl3cSCbDlAz2Ih5KE6kFqCN7QIDAQAB
+  SIGNTYPE: RSA2
+  FORMAT: json
+  CHARSET: UTF-8
+  notifyUrl: http://xj.sensorte.com:9999/sellCabinet/alipay/receiveSgin

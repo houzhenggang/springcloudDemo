@@ -1,0 +1,41 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sensor.sellCabinet.mapper.CabinetSpecsMapper">
+
+  <resultMap id="cabinetSpecsMap" type="com.sensor.sellCabinet.model.entity.CabinetSpecs">
+                  <id property="id" column="id"/>
+                        <result property="specsNo" column="specs_no"/>
+                        <result property="channelLine" column="channel_line"/>
+                        <result property="channelRow" column="channel_row"/>
+            </resultMap>
+
+  <!--cabinetSpecs简单分页查询-->
+  <select id="getCabinetSpecsPage" resultMap="cabinetSpecsMap">
+    SELECT
+                  id,
+                        specs_no,
+                        channel_line,
+                        channel_row
+              FROM cabinet_specs
+    <where>
+              <if test="cabinetSpecs.id != null">
+          AND id = #{cabinetSpecs.id}
+        </if>
+              <if test="cabinetSpecs.specsNo != null and cabinetSpecs.specsNo.trim() != ''">
+          AND specs_no = #{cabinetSpecs.specsNo}
+        </if>
+              <if test="cabinetSpecs.channelLine != null">
+          AND channel_line = #{cabinetSpecs.channelLine}
+        </if>
+              <if test="cabinetSpecs.channelRow != null">
+          AND channel_row = #{cabinetSpecs.channelRow}
+        </if>
+          </where>
+  </select>
+
+	<select id="getCabinetSpecsByNo" resultMap="cabinetSpecsMap">
+        select * from cabinet_specs where specs_no = #{specsNo}
+	</select>
+
+
+</mapper>

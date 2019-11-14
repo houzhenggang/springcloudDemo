@@ -1,0 +1,262 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.sensor.sellCabinet.mapper.IncomeMapper">
+
+  <resultMap id="incomeMap" type="com.sensor.sellCabinet.model.entity.Income">
+                  <id property="id" column="id"/>
+                        <result property="orderCode" column="order_code"/>
+                        <result property="teamCode" column="team_code"/>
+                        <result property="totalAmount" column="total_amount"/>
+                        <result property="sensorIncome" column="sensor_income"/>
+                        <result property="firstAdmin" column="first_admin"/>
+                        <result property="firstIncome" column="first_income"/>
+                        <result property="secondAdmin" column="second_admin"/>
+                        <result property="secondIncome" column="second_income"/>
+                        <result property="thirdAdmin" column="third_admin"/>
+                        <result property="thirdIncome" column="third_income"/>
+                        <result property="fourthAdmin" column="fourth_admin"/>
+                        <result property="fourthIncome" column="fourth_income"/>
+                        <result property="fifthAdmin" column="fifth_admin"/>
+                        <result property="fifthIncome" column="fifth_income"/>
+                        <result property="createDate" column="create_date"/>
+                        <result property="incomeFlag" column="income_flag"/>
+                        <result property="status" column="status"/>
+            </resultMap>
+
+	<resultMap id="IncomeDtoMap" type="com.sensor.sellCabinet.model.dto.IncomeDto">
+		<result property="firstProxyName" column="firstProxyName"/>
+		<result property="secondProxyName" column="secondProxyName"/>
+		<result property="thirdProxyName" column="thirdProxyName"/>
+		<result property="fourthProxyName" column="fourthProxyName"/>
+		<result property="fifthProxyName" column="fifthProxyName"/>
+		<result property="teamName" column="team_name"/>
+	</resultMap>
+
+  <!--income简单分页查询-->
+  <select id="getIncomePage" resultMap="IncomeDtoMap">
+    SELECT
+	  a.team_name,
+	  b.id,
+	  b.order_code,
+	  b.team_code,
+	  b.total_amount,
+	  b.sensor_income,
+	  b.first_admin,
+	  (select proxy_name from sys_user where user_id = a.first_admin) as firstProxyName,
+	  b.first_income,
+	  b.second_admin,
+	  (select proxy_name from sys_user where user_id = a.second_admin) as secondProxyName,
+	  b.second_income,
+	  b.third_admin,
+	  (select proxy_name from sys_user where user_id = a.third_admin) as thirdProxyName,
+	  b.third_income,
+	  b.fourth_admin,
+	  (select proxy_name from sys_user where user_id = a.fourth_admin) as fourthProxyName,
+	  b.fourth_income,
+	  b.fifth_admin,
+	  (select proxy_name from sys_user where user_id = a.fifth_admin) as fifthProxyName,
+	  b.fifth_income,
+	  b.create_date,
+	  b.income_flag,
+	  b.status
+	  FROM team a inner join income b on a.team_code = b.team_code
+    <where>
+		<choose>
+			<when test="user.level == 1">
+				AND a.first_admin = #{user.userId}
+			</when>
+			<when test="user.level == 2">
+				AND a.second_admin = #{user.userId}
+			</when>
+			<when test="user.level == 3">
+				AND a.third_admin = #{user.userId}
+			</when>
+			<when test="user.level == 4">
+				AND a.fourth_admin = #{user.userId}
+			</when>
+			<when test="user.level == 5">
+				AND a.fifth_admin = #{user.userId}
+			</when>
+		</choose>
+			  <if test="income.id != null">
+          AND b.id = #{income.id}
+        </if>
+              <if test="income.orderCode != null and income.orderCode.trim() != ''">
+          AND b.order_code = #{income.orderCode}
+        </if>
+		<if test="income.teamName != null and income.teamName.trim() != ''">
+			AND a.team_name like '%${income.teamName}%'
+		</if>
+		<if test="income.proxyName != null and income.proxyName.trim() != ''">
+			AND (
+			(select proxy_name from sys_user where user_id = a.first_admin) like '%${income.proxyName}%'
+			or (select proxy_name from sys_user where user_id = a.second_admin) like '%${income.proxyName}%'
+			or (select proxy_name from sys_user where user_id = a.third_admin) like '%${income.proxyName}%'
+			or (select proxy_name from sys_user where user_id = a.fourth_admin) like '%${income.proxyName}%'
+			or (select proxy_name from sys_user where user_id = a.fifth_admin) like '%${income.proxyName}%'
+			)
+		</if>
+              <if test="income.teamCode != null and income.teamCode.trim() != ''">
+          AND b.team_code = #{income.teamCode}
+        </if>
+              <if test="income.totalAmount != null and income.totalAmount.trim() != ''">
+          AND b.total_amount = #{income.totalAmount}
+        </if>
+              <if test="income.sensorIncome != null and income.sensorIncome.trim() != ''">
+          AND b.sensor_income = #{income.sensorIncome}
+        </if>
+              <if test="income.firstAdmin != null and income.firstAdmin.trim() != ''">
+          AND b.first_admin = #{income.firstAdmin}
+        </if>
+              <if test="income.firstIncome != null and income.firstIncome.trim() != ''">
+          AND b.first_income = #{income.firstIncome}
+        </if>
+              <if test="income.secondAdmin != null and income.secondAdmin.trim() != ''">
+          AND b.second_admin = #{income.secondAdmin}
+        </if>
+              <if test="income.secondIncome != null and income.secondIncome.trim() != ''">
+          AND b.second_income = #{income.secondIncome}
+        </if>
+              <if test="income.thirdAdmin != null and income.thirdAdmin.trim() != ''">
+          AND b.third_admin = #{income.thirdAdmin}
+        </if>
+              <if test="income.thirdIncome != null and income.thirdIncome.trim() != ''">
+          AND b.third_income = #{income.thirdIncome}
+        </if>
+              <if test="income.fourthAdmin != null and income.fourthAdmin.trim() != ''">
+          AND b.fourth_admin = #{income.fourthAdmin}
+        </if>
+              <if test="income.fourthIncome != null and income.fourthIncome.trim() != ''">
+          AND b.fourth_income = #{income.fourthIncome}
+        </if>
+              <if test="income.fifthAdmin != null and income.fifthAdmin.trim() != ''">
+          AND b.fifth_admin = #{income.fifthAdmin}
+        </if>
+              <if test="income.fifthIncome != null and income.fifthIncome.trim() != ''">
+          AND b.fifth_income = #{income.fifthIncome}
+        </if>
+		<if test="income.sDate != null and income.sDate.trim()!= ''">
+			AND <![CDATA[b.create_date >= #{income.sDate}]]>
+		</if>
+		<if test="income.eDate != null and income.eDate.trim()!= ''">
+			AND <![CDATA[b.create_date <= #{income.eDate}]]>
+		</if>
+              <if test="income.incomeFlag != null and income.incomeFlag.trim() != ''">
+          AND b.income_flag = #{income.incomeFlag}
+        </if>
+              <if test="income.status != null and income.status.trim() != ''">
+          AND b.status = #{income.status}
+        </if>
+          </where>
+	  order by b.create_date desc
+  </select>
+
+	<select id="getIncomeConfirmPage" resultMap="IncomeDtoMap">
+		SELECT
+		a.team_name,
+		b.team_code,
+		SUM(b.total_amount) as total_amount,
+		SUM(b.sensor_income) as sensor_income,
+		b.first_admin,
+		(select proxy_name from sys_user where user_id = a.first_admin) as firstProxyName,
+		SUM(b.first_income) as first_income,
+		b.second_admin,
+		(select proxy_name from sys_user where user_id = a.second_admin) as secondProxyName,
+		SUM(b.second_income) as second_income,
+		b.third_admin,
+		(select proxy_name from sys_user where user_id = a.third_admin) as thirdProxyName,
+		SUM(b.third_income) as third_income,
+		b.fourth_admin,
+		(select proxy_name from sys_user where user_id = a.fourth_admin) as fourthProxyName,
+		SUM(b.fourth_income) as fourth_income,
+		b.fifth_admin,
+		(select proxy_name from sys_user where user_id = a.fifth_admin) as fifthProxyName,
+		SUM(b.fifth_income) as fifth_income
+		FROM team a inner join income b on a.team_code = b.team_code
+		<where>
+			<if test="income.incomeStatus != null and income.incomeStatus.trim() != ''">
+				AND a.income_status = #{income.incomeStatus}
+			</if>
+			<if test="income.eDate != null and income.eDate.trim() != ''">
+				and <![CDATA[b.create_date<= #{income.eDate}]]>
+			</if>
+			<if test="income.teamName != null and income.teamName.trim() != ''">
+				AND a.team_name like '%${income.teamName}%'
+			</if>
+			<if test="income.proxyName != null and income.proxyName.trim() != ''">
+				AND (select proxy_name from sys_user where user_id = a.first_admin) like '%${income.proxyName}%'
+				or (select proxy_name from sys_user where user_id = a.second_admin) like '%${income.proxyName}%'
+				or (select proxy_name from sys_user where user_id = a.third_admin) like '%${income.proxyName}%'
+				or (select proxy_name from sys_user where user_id = a.fourth_admin) like '%${income.proxyName}%'
+				or (select proxy_name from sys_user where user_id = a.fifth_admin) like '%${income.proxyName}%'
+			</if>
+			<if test="income.teamCode != null and income.teamCode.trim() != ''">
+				AND b.team_code = #{income.teamCode}
+			</if>
+			<if test="income.totalAmount != null and income.totalAmount.trim() != ''">
+				AND b.total_amount = #{income.totalAmount}
+			</if>
+			<if test="income.sensorIncome != null and income.sensorIncome.trim() != ''">
+				AND b.sensor_income = #{income.sensorIncome}
+			</if>
+			<if test="income.firstAdmin != null and income.firstAdmin.trim() != ''">
+				AND b.first_admin = #{income.firstAdmin}
+			</if>
+			<if test="income.firstIncome != null and income.firstIncome.trim() != ''">
+				AND b.first_income = #{income.firstIncome}
+			</if>
+			<if test="income.secondAdmin != null and income.secondAdmin.trim() != ''">
+				AND b.second_admin = #{income.secondAdmin}
+			</if>
+			<if test="income.secondIncome != null and income.secondIncome.trim() != ''">
+				AND b.second_income = #{income.secondIncome}
+			</if>
+			<if test="income.thirdAdmin != null and income.thirdAdmin.trim() != ''">
+				AND b.third_admin = #{income.thirdAdmin}
+			</if>
+			<if test="income.thirdIncome != null and income.thirdIncome.trim() != ''">
+				AND b.third_income = #{income.thirdIncome}
+			</if>
+			<if test="income.fourthAdmin != null and income.fourthAdmin.trim() != ''">
+				AND b.fourth_admin = #{income.fourthAdmin}
+			</if>
+			<if test="income.fourthIncome != null and income.fourthIncome.trim() != ''">
+				AND b.fourth_income = #{income.fourthIncome}
+			</if>
+			<if test="income.fifthAdmin != null and income.fifthAdmin.trim() != ''">
+				AND b.fifth_admin = #{income.fifthAdmin}
+			</if>
+			<if test="income.fifthIncome != null and income.fifthIncome.trim() != ''">
+				AND b.fifth_income = #{income.fifthIncome}
+			</if>
+			<if test="income.incomeFlag != null and income.incomeFlag.trim() != ''">
+				AND b.income_flag = #{income.incomeFlag}
+			</if>
+			<if test="income.status != null and income.status.trim() != ''">
+				AND b.status = #{income.status}
+			</if>
+		</where>
+		GROUP BY b.team_code
+	</select>
+
+	<select id="getIncomeList" resultMap="incomeMap">
+		select a.* from income a LEFT JOIN team b on a.team_code = b.team_code
+		<where>
+			a.status = '0'
+			<if test="income.eDate != null and income.eDate.trim() != ''">
+				and <![CDATA[a.create_date<= #{income.eDate}]]>
+			</if>
+			<if test="income.teamCode != null and income.teamCode.trim() != ''">
+				and b.team_code = #{income.teamCode}
+			</if>
+			<if test="income.incomeStatus != null and income.incomeStatus.trim() != ''">
+				AND b.income_status = #{income.incomeStatus}
+			</if>
+		</where>
+	</select>
+
+	<select id="getIncomeByOrderCode" resultMap="incomeMap">
+		select * from income where order_code = #{orderCode}
+	</select>
+
+</mapper>
